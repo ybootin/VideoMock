@@ -2,27 +2,19 @@
  
 namespace videomock.constant {
   export class Source {
-    static VIDEO_640x360_30S: string = '640x360-30s'
+    static VIDEO_640x360_30S: string = '640x360-30'
 
-    static getDataFromSource(id: string): model.ISourceData {
-      var constName: string 
-      for (var str in Source) {
-        if (typeof Source[str] === 'string') {
-          constName = str
-        }
-      }
-
-      if (!constName) {
-        throw 'data with id ' + id + ' doesn\'t exists'
-      }
-
-      var exploded = str.split('-')
+    static getDataFromSource(src: string): model.ISourceData {
+      var exploded = src.split('-')
       var size = exploded[0].split('x')
+      if (!size[1]) {
+        throw 'invalid source, use default'
+      }
 
       return <model.ISourceData>{
-        'width': size[0],
-        'height': size[1],
-        'duration': exploded[1]
+        'width': Number(size[0]),
+        'height': Number(size[1]),
+        'duration': Number(exploded[1])
       }
     }
   }

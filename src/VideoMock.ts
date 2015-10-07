@@ -1,23 +1,105 @@
-/// <reference path="dom/HTMLVideoElement.ts" /> 
-/// <reference path="dom/VideoContainer.ts" /> 
+/// <reference path="dom/VideoElement.ts" /> 
+/// <reference path="ui/VideoMockUI.ts" /> 
 /// <reference path="model/ISourceData.ts" /> 
 /// <reference path="constant/Source.ts" /> 
 /// <reference path="event/MediaEvent.ts" /> 
 
 namespace videomock {
-  export class VideoMock extends dom.HTMLVideoElement {
+  /**
+   * Mocked HTMLVideoElement
+   * 
+   * a working implementation of the HTMLVideoElement, to test Video tag without video codec
+   *
+   * USAGE : 
+   *    var Custom = Object.create(HTMLDivElement.prototype)
+   *    Custom.createdCallback = function() {
+   *      videomock.VideoMock.call(this)
+   *    }
+   *    videomock.VideoMock.implement(Custom)
+   *
+   *    var HTMLCustomElement = document.registerElement('video-mock', {
+   *      prototype: Custom,
+   *      extends: 'div'
+   *    })
+   * 
+   * based on typescript interface : 
+   *   https://github.com/Microsoft/TypeScript/blob/master/lib/lib.dom.d.ts
+   */
+  export class VideoMock extends dom.VideoElement {
 
-    private _playbackTimerId: number
+    protected _playbackTimerId: number
+    protected _hasStarted: boolean;
 
-    private _hasStarted: boolean;
+    static implement(classObject: Function): void {
+      // super call
+      dom.VideoElement.implement(classObject)
 
-    private _container: HTMLDivElement;
+      // override src setter
+      Object.defineProperty(classObject.prototype, 'src', {
+        get: function (): string {
+            return this._src;
+        },
+        set: function (value: string) {
+          this._set_src(value)
+        },
+        enumerable: true,
+        configurable: true
+      });
+      
+      /**
+       * We don't need controls here for the moment !
+       */
+      Object.defineProperty(classObject.prototype, 'controls', {
+        get: function (): boolean {
+            return false;
+        },
+        set: function (value: boolean) {
+            this._controls = value;
+        },
+        enumerable: true,
+        configurable: true
+      });
 
-    private _videoDisplay: dom.VideoContainer;
+      classObject.prototype._set_src = function(value: string): void {
+        VideoMock.prototype._set_src.call(this, value)
+      }
 
-    set src(value: string) {
+      classObject.prototype.play = function(): void {
+        VideoMock.prototype.play.call(this)
+      }
+
+      classObject.prototype.pause = function(): void {
+        VideoMock.prototype.pause.call(this)
+      }
+
+      classObject.prototype.load = function(): void {
+        VideoMock.prototype.load.call(this)
+      }
+
+      classObject.prototype._startPlaybackTimer = function(): void {
+        VideoMock.prototype._startPlaybackTimer.call(this)
+      }
+
+      classObject.prototype._stopPlaybackTimer = function(): void {
+        VideoMock.prototype._stopPlaybackTimer.call(this)
+      }
+
+      classObject.prototype._replay = function(): void {
+        VideoMock.prototype._replay.call(this)
+      }
+
+      classObject.prototype._handleEvent = function(evt: Event): void {
+        VideoMock.prototype._handleEvent.call(this, evt)
+      }
+    }
+
+    /**
+     * src setter !
+     * @param {string} value [description]
+     */
+    protected _set_src(value: string): void {
       this._src = value
-      this._currentSrc = this.src
+      this._currentSrc = this._src
 
       // try to parse src, or use default value
       var data: model.ISourceData 
@@ -50,6 +132,10 @@ namespace videomock {
           clearInterval(intervalId)
         }
 
+        // add a buffered timeRange
+        this._buffered.addRange(prevLoaded, loaded) 
+
+        // Handle first load, and dispatch all metadate events
         if (first) {
           first = false
           this._dispatchEvent(event.MediaEvent.loadeddata)
@@ -63,10 +149,11 @@ namespace videomock {
           this._dispatchEvent(event.MediaEvent.durationchange)
           this._dispatchEvent(event.MediaEvent.canplay)
           this._dispatchEvent(event.MediaEvent.canplaythrough)
-        }
 
-        // add a buffered timeRange
-        this._buffered.addRange(prevLoaded, loaded) 
+          if (this._autoplay) {
+            this.play()
+          }
+        }
 
         this._handleEvent(new ProgressEvent(event.MediaEvent.progress, {
           'lengthComputable': true, 
@@ -74,37 +161,10 @@ namespace videomock {
           'total': virtualSize * 1000
         }))
       }, step)
-
-      if (this.autoplay) {
-        this.play()
-      }
-    }
-
-    /**
-     * headless video ... Will never implement this
-     */
-    get controls(): boolean {
-      return false
-    }
-
-    set videoWidth(value: number) {
-      this._videoWidth = value
-      this._videoDisplay.width = this.videoWidth
-    }
-
-    set videoHeight(value: number) {
-      this._videoHeight = value
-      this._videoDisplay.height = this.videoHeight
-    }
-
-    set currentTime(value: number) {
-      this._currentTime = value
-
-      // @todo ==> seek !!!
     }
 
     public play(): void {
-      this.paused = false
+      this._paused = false
 
       if (!this._hasStarted) {
         this._hasStarted = true
@@ -115,45 +175,35 @@ namespace videomock {
       } else {
         this._dispatchEvent(event.MediaEvent.playing)
       }
-
-      // Handle display 
-      this._createDisplay()
     }
 
     public pause(): void {
-      if (!this.paused) {
-        this.paused = true
+      if (!this._paused) {
+        this._paused = true
+        this._dispatchEvent(event.MediaEvent.pause)
       }
     }
 
     public load(): void {
-      this.src = this._src
+      this._set_src(this._src)
     }
-
-    protected _createDisplay(): void {
-      this._videoDisplay = new dom.VideoContainer()
-      this.appendChild(this._videoDisplay.getContainer())
-    }
-
-
 
     protected _startPlaybackTimer(): void {
       if (!this._playbackTimerId) {
         var step: number = 100
         this._playbackTimerId = setInterval((): void => {
-          if (!this.paused) {
+          if (!this._paused) {
             // currentTime is in seconds !
-            this.currentTime += step / 1000
+            // and must use set_currentTime insteads of propertie due to property inheritance problem in ES5
+            this._currentTime =  this._currentTime + (step / 1000)
 
-            if (this.currentTime >= this.duration) {
-              this._currentTime = this.duration 
+            if (this._currentTime >= this._duration) {
+              this._currentTime = this._duration
               this._dispatchEvent(event.MediaEvent.ended)
               this._stopPlaybackTimer()
             } else {
               this._dispatchEvent(event.MediaEvent.timeupdate)
             }
-
-            this._videoDisplay.updateDisplay()
           }
         }, step)
       }
@@ -167,19 +217,20 @@ namespace videomock {
 
     protected _replay(): void {
       this._stopPlaybackTimer()
-      this.currentTime = 0
+      this._currentTime = 0
       this.play()
     }
 
+    /**
+     * Override Handle event ! 
+     * @param {Event} evt [description]
+     */
     protected _handleEvent(evt: Event): void {
       switch (evt.type) {
         case event.MediaEvent.ended: 
-          if (this.loop) {
+          if (this._loop) {
             this._replay()
           }
-          break
-        case event.MediaEvent.timeupdate:
-          this._videoDisplay.setCurrentTime(this.currentTime)
           break
       }
 

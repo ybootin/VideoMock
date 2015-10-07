@@ -1,14 +1,47 @@
 <!doctype html>
 <html>
   <head>
-    <script src="../dist/videomock.js"></script>
+    
   </head>
   <body>
     <div id="video-container"></div>
+    <div id="video-constrols">
+      <div>
+        <input type="button" value="pause()" onclick="video.pause()" /> &nbsp;
+        <input type="button" value="play()" onclick="video.play()" /> &nbsp;
+        <input type="button" value="mute" onclick="video.volume=0" /> &nbsp;
+        <input type="button" value="unmute" onclick="video.volume=1" /> &nbsp;
+      </div>
+      <br />
+      <div>
+        <input type="button" value="resize 400x300" onclick="video.width=400;video.height=300;" /> &nbsp;
+        <input type="button" value="resize 640x480" onclick="video.width=640;video.height=480;" /> &nbsp;
+        <input type="button" value="resize 640x360" onclick="video.width=640;video.height=360;" /> &nbsp;
+        <input type="button" value="resize 300x200" onclick="video.width=300;video.height=200;" /> &nbsp;
+        <input type="button" value="resize 800x600" onclick="video.width=800;video.height=600;" /> &nbsp;
+        <input type="button" value="resize 1200x720" onclick="video.width=1200;video.height=720;" /> &nbsp;
+      </div>
+    </div>
+    <script src="../dist/videomock.js"></script>
     <script>
-    var video = new videomock.VideoMock();
-    video.src = videomock.constant.Source.VIDEO_640x360_30S;
-    video.play();
+      // Log all events
+      function onEvent(evt) {
+        if (window.console && ['timeupdate', 'progress'].indexOf(evt.type) === -1) {
+          console.log('Got an event ' + evt.type, evt)
+        }
+      }
+
+      var video = new videomock.HTMLVideoMock(); //document.createElement('video-mock')
+      video.src = videomock.constant.Source.VIDEO_640x360_30S;
+
+      for (var evt in videomock.event.MediaEvent) {
+        video.addEventListener(videomock.event.MediaEvent[evt], onEvent)
+      }
+
+      video.play();
+
+      // add to DOM
+      document.getElementById('video-container').appendChild(video)
     </script>
   </body>
 </html>
