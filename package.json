@@ -1,0 +1,21 @@
+{
+  "name": "VideoMock",
+  "description": "Provide video element for headless server like phantomjs. Usefull for headless Unit Test",
+  "repository": "git@github.com/ybootin/VideoMock.git",
+  "version": "0.0.1",
+  "dependencies": {},
+  "files": [
+    "dist",
+    "src",
+    "sample",
+    "README.md"
+  ],
+  "devDependencies": {
+    "uglify-js": "2.4.24"
+  },
+  "scripts" : {
+    "prepublish": "npm run build",
+    "build": "tsc --out dist/videomock.js --removeComments -t ES5 src/VideoMock.ts && npm run uglify",
+    "uglify": "node_modules/uglify-js/bin/uglifyjs -o dist/videomock.min.js dist/videomock.js"
+  }
+}

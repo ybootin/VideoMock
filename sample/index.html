@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="../dist/videomock.js"></script>
+  </head>
+  <body>
+    <div id="video-container"></div>
+    <script>
+    var video = new videomock.VideoMock();
+    video.src = videomock.constant.Source.VIDEO_640x360_30S;
+    video.play();
+    </script>
+  </body>
+</html>
