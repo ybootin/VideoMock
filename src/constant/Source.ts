@@ -17,5 +17,9 @@ namespace videomock.constant {
         'duration': Number(exploded[1])
       }
     }
+
+    static genMockUrl(width: number = 640, height: number = 360, duration: number = 30): string {
+      return width + 'x' + height + '_' + duration
+    }
   }
 }

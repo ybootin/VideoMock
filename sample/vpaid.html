@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="../dist/videomock.js"></script>
+    <script type="text/javascript" src="//cdn.teads.tv/media/player/teads-vpaid.js"></script>
+  </head>
+  <body>
+    <h1>VideoMock vpaid sample</h1>
+    <p>Open the Javascript console and play with the <code>window.vpaid</code> object for advanced testing</p>
+
+    <div id="vpaid-container"></div>
+
+    <div>
+      <input type="button" value="pauseAd()" onclick="vpaidAd.pauseAd();" /> &nbsp;
+      <input type="button" value="resumeAd()" onclick="vpaidAd.resumeAd();" /> &nbsp;
+      <input type="button" value="skipAd()" onclick="vpaidAd.skipAd();" /> &nbsp;
+      <input type="button" value="stopAd()" onclick="vpaidAd.stopAd();" /> &nbsp;
+      <input type="button" value="mute" onclick="vpaidAd.setAdVolume(0);" /> &nbsp;
+      <input type="button" value="unmute" onclick="vpaidAd.setAdVolume(1);" /> &nbsp;
+    </div>
+    <br />
+    <div>
+      <input type="button" value="resize 400x300" onclick="vpaidAd.resizeAd(400, 300);" /> &nbsp;
+      <input type="button" value="resize 640x480" onclick="vpaidAd.resizeAd(640, 480);" /> &nbsp;
+      <input type="button" value="resize 640x360" onclick="vpaidAd.resizeAd(640, 360);" /> &nbsp;
+      <input type="button" value="resize 300x200" onclick="vpaidAd.resizeAd(300, 200);" /> &nbsp;
+      <input type="button" value="resize 800x600" onclick="vpaidAd.resizeAd(800, 600);" /> &nbsp;
+      <input type="button" value="resize 1200x720" onclick="vpaidAd.resizeAd(1280, 720);" /> &nbsp;
+    </div>
+
+    <script>
+      var envVar = {
+        'videoSlot': new videomock.HTMLVideoMock()
+      }
+
+      var adUrl = '//cdn.teads.tv/media/player/teads-vpaid-video.js'
+
+      var adParameters = {
+        'url': 'http://techslides.com/demos/sample-videos/small.mp4',
+        'clickThrough': 'http://www.teads.tv',
+        'skippable': true,
+        'skipoffset': 2
+      }
+
+      var loader = new teads.vpaid.VPAIDLoader(document.getElementById('vpaid-container'), {
+        'assetsPath': '//cdn.teads.tv/media/player'
+      })
+      var onVpaidLoaded = function(vpaidAd) {
+        window.vpaidAd = vpaidAd
+
+        // closure to log ALL VPAID event !
+        var onEventCallback = function(eventName) {
+          return function() {
+            var data = ['Got a VPAIDEvent: ' + eventName]
+            var l = arguments.length
+            if (l > 0) {
+              for (var i = 0; i < l; i++) {
+                data.push(arguments[i])
+              }
+            }
+            // skip annoying events in console
+            if (['AdRemainingTimeChange'].indexOf(eventName) >= 0) {
+              return
+            }
+
+            if (window.console) {
+              console.log.apply(window, data)
+            }
+          }
+        }
+
+        for (evt in teads.vpaid.VPAIDEvent) {
+          vpaidAd.subscribe(onEventCallback(evt), evt);
+        }
+
+        vpaidAd.subscribe(function() {
+          vpaidAd.startAd()
+        }, 'AdLoaded')
+        vpaidAd.initAd(640, 360, 'normal', 512, adParameters, envVar)
+      }
+
+      var onError = function(msg) {
+        if (window.console) {
+          console.error(msg)
+        }
+      }
+
+      loader.load(adUrl, onVpaidLoaded, onError)
+    </script>
+  </body>
+</html>

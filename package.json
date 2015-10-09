@@ -16,6 +16,7 @@
   "scripts" : {
     "prepublish": "npm run build",
     "build": "tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
+    "dev": "npm run build && http-server -c-1 --cors",
     "uglify": "node_modules/uglify-js/bin/uglifyjs -o dist/videomock.min.js dist/videomock.js"
   }
 }

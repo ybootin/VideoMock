@@ -10,12 +10,11 @@ namespace videomock.ui {
 
     constructor(private video: HTMLVideoElement) {
       video.addEventListener(event.MediaEvent.timeupdate, () => this.updateDisplay())
-      video.addEventListener(event.MediaEvent.ended, () => this.updateDisplay())     
-      video.addEventListener(event.MediaEvent.error, () => this.updateDisplay()) 
-      video.addEventListener(event.MediaEvent.pause, () => this.updateDisplay())  
-      video.addEventListener(event.MediaEvent.playing, () => this.updateDisplay())   
-      video.addEventListener(event.MediaEvent.play, () => this.updateDisplay())  
-      //video.addEventListener('resize', () => this.updateDisplay())  
+      video.addEventListener(event.MediaEvent.ended, () => this.onEnded())     
+      video.addEventListener(event.MediaEvent.error, () => this.onError()) 
+      video.addEventListener(event.MediaEvent.pause, () => this.onPaused())  
+      video.addEventListener(event.MediaEvent.playing, () => this.onPlay())   
+      video.addEventListener(event.MediaEvent.play, () => this.onPlay())  
 
       // main container, will
       this.mainContainer = <HTMLDivElement>document.createElement('div')
@@ -32,11 +31,25 @@ namespace videomock.ui {
     }
 
     public updateDisplay(): void {
-      var tmpl = '<div style="background-color:#CCCCCC;position:absolute;top:' + (this.video.width - this.video.videoWidth) / 2 + 'px;left:' + (this.video.height - this.video.videoHeight) / 2 + 'px">' +
-                  '<div>URL : ' + this.video.src + '</div>' +
-                  '<div>Size : ' + this.video.width + 'x' + this.video.height + ' (video : ' + this.video.videoWidth + 'x' + this.video.videoHeight + ')</div>' +
-                  '<div>Progress : ' + this.video.currentTime + '/' + this.video.duration + 's</div>' +
-                  '<div>Status : ' + this.status + '</div>' +
+      var width = this.video.width || this.video.videoWidth
+      var height = this.video.height || this.video.videoHeight
+      var percentPlayed = this.video.currentTime / this.video.duration * 100
+
+      helper.HTMLHelper.applyStyle(this.mainContainer, {
+        'width' : width + 'px',
+        'height': height + 'px',
+      })
+
+      var tmpl = '<div style="width:' + this.video.videoWidth + 'px;height:' + this.video.videoHeight + 'px;background-color:#CCCCCC;position:absolute;left:' + (width - this.video.videoWidth) / 2 + 'px;top:' + (height - this.video.videoHeight) / 2 + 'px">' +
+                  '<div style="z-index:2;background-color:#999999;position:absolute;bottom:0px;height:' + this.video.videoHeight + 'px;width:' + percentPlayed + '%"></div>' +
+                  '<div style="font-family:monaco;position:absolute;top:0;left:0;z-index:2;padding:10px;">' +
+                    '<h3>VideoMock info</h3>' +
+                    '<div>URL: ' + this.video.src + '</div>' +
+                    '<div>Size: ' + width + 'x' + height + ' (video : ' + this.video.videoWidth + 'x' + this.video.videoHeight + ')</div>' +
+                    '<div>Progress: ' + Math.round(this.video.currentTime) + '/' + this.video.duration + 's</div>' +
+                    '<div>Volume: ' + this.video.volume + '</div>' + 
+                    '<div>Status: ' + this.status + '</div>' +
+                  '<div>'
                  '</div>';
 
       this.mainContainer.innerHTML = tmpl      
