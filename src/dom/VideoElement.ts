@@ -3,10 +3,12 @@
 namespace videomock.dom {
   /**
    * Abstract HTMLVideoElement implementation.
-   * 
+   *
+   * @see http://dev.w3.org/html5/spec-preview/the-video-element.html#the-video-element
+   *
    * Used to implement HTMLVideoElement on any HTMLElement
    *
-   * USAGE : 
+   * USAGE :
    *    var Custom = Object.create(HTMLDivElement.prototype)
    *    Custom.createdCallback = function() {
    *      videomock.VideoElement.call(this)
@@ -17,14 +19,19 @@ namespace videomock.dom {
    *      prototype: Custom,
    *      extends: 'div'
    *    })
-   * 
-   * based on typescript interface : 
-   *   https://github.com/Microsoft/TypeScript/blob/master/lib/lib.dom.d.ts
+   *
    */
   export class VideoElement extends MediaElement {
     protected _poster: string;
+    protected _width: number = 0;
+    protected _height: number = 0;
     protected _videoHeight: number = 0;
     protected _videoWidth: number = 0;
+
+    // W3C specifications
+    // @see http://dev.w3.org/html5/spec-preview/the-video-element.html#dom-video-videowidth
+    static DEFAULT_VIDEOWIDTH: number = 300
+    static DEFAULT_VIDEOHEIGHT: number = 150
 
     static implement(classObject: Function): void {
       // super implementation
@@ -32,6 +39,8 @@ namespace videomock.dom {
 
       var properties = {
         'poster': [true, true],
+        'width': [true, true],
+        'height': [true, true],
         'videoHeight': [true, false],
         'videoWidth': [true, false],
       }
@@ -74,7 +83,7 @@ namespace videomock.dom {
     public webkitEnterFullScreen(): void {
       this.webkitEnterFullscreen()
     }
-    
+
     /**
      * exit the video fullscreen mode
      */
@@ -82,7 +91,7 @@ namespace videomock.dom {
       throw 'not implemented'
     }
 
-    public webkitExitFullScreen (): void {
+    public webkitExitFullScreen(): void {
       this.webkitExitFullscreen()
     }
 

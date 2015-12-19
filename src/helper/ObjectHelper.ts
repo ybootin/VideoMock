@@ -7,38 +7,25 @@ namespace videomock.helper {
     }
 
     static genGetterSetter(classObject: Function, name: string, getter: boolean = true, setter: boolean = true, isEnumerable: boolean = true, isConfigurable: boolean = true): void {
-      if (getter && setter) {
-        Object.defineProperty(classObject.prototype, name, {
-          get: function () {
-              return this['_' + name];
-          },
-          set: function (value) {
-              this['_' + name] = value;
-          },
-          enumerable: isEnumerable,
-          configurable: isConfigurable
-        });
-      } else if (getter) {
-        ObjectHelper.genGetter(classObject, name, isEnumerable, isConfigurable)
-      } else if (setter) {
-         ObjectHelper.genSetter(classObject, name, isEnumerable, isConfigurable)
+      // this is dirty, but this is a simple way to get getter/setter of the private attributes
+      // this way you override getter/setter without call Object.defineProperty again.
+      // just override the setter `_get|set_name()`
+      classObject.prototype['_get_' + name] = function() {
+        return getter ? this['_' + name] : undefined
       }
-    }
+      classObject.prototype['_set_' + name] = function(value) {
+        if (setter) {
+          this['_' + name] = value
+        }
+        // FIXME , see if we should throw an execption or not whencall readonly setter
+      }
 
-    static genGetter(classObject: Function, name: string, isEnumerable: boolean = true, isConfigurable: boolean = true): void {
       Object.defineProperty(classObject.prototype, name, {
         get: function () {
-            return this['_' + name];
+            return this['_get_' + name]()
         },
-        enumerable: isEnumerable,
-        configurable: isConfigurable
-      });
-    }
-
-    static genSetter(classObject: Function, name: string, isEnumerable: boolean = true, isConfigurable: boolean = true): void {
-      Object.defineProperty(classObject.prototype, name, {
         set: function (value) {
-            this['_' + name] = value;
+          this['_set_' + name](value)
         },
         enumerable: isEnumerable,
         configurable: isConfigurable

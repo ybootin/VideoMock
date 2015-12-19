@@ -1,17 +1,19 @@
-/// <reference path="../event/EventHandler.ts" /> 
-/// <reference path="../event/MediaEvent.ts" /> 
-/// <reference path="../constant/Common.ts" /> 
-/// <reference path="../helper/ObjectHelper.ts" /> 
-/// <reference path="TimeRanges.ts" /> 
-
+/// <reference path="../event/EventHandler.ts" />
+/// <reference path="../event/MediaEvent.ts" />
+/// <reference path="../constant/Common.ts" />
+/// <reference path="../helper/ObjectHelper.ts" />
+/// <reference path="TimeRanges.ts" />
+/// <reference path="DomElement.ts" />
 
 namespace videomock.dom {
   /**
-   * Abstract HTMLMediaElement implementation. 
+   * Abstract HTMLMediaElement implementation.
+   *
+   * @see http://dev.w3.org/html5/spec-preview/media-elements.html#htmlmediaelement
    *
    * Used to implement HTMLMediaElement on any HTMLElement
    *
-   * USAGE : 
+   * USAGE :
    *    var Custom = Object.create(HTMLDivElement.prototype)
    *    Custom.createdCallback = function() {
    *      videomock.MediaElement.call(this)
@@ -22,18 +24,15 @@ namespace videomock.dom {
    *      prototype: Custom,
    *      extends: 'div'
    *    })
-   * 
-   * based on typescript interface : 
-   *   https://github.com/Microsoft/TypeScript/blob/master/lib/lib.dom.d.ts
    */
-  export class MediaElement {
+  export class MediaElement extends DomElement {
 
     static HAVE_NOTHING: number = 0; // - no information whether or not the audio/video is ready
     static HAVE_METADATA: number = 1; // - metadata for the audio/video is ready
     static HAVE_CURRENT_DATA: number = 2; // - data for the current playback position is available, but not enough data to play next frame/millisecond
     static HAVE_FUTURE_DATA: number = 3; // - data for the current and at least the next frame is available
     static HAVE_ENOUGH_DATA: number = 4; // - enough data available to start playing
-    
+
     static NETWORK_EMPTY: number;
     static NETWORK_IDLE: number;
     static NETWORK_LOADING: number;
@@ -57,7 +56,7 @@ namespace videomock.dom {
     protected _playbackRate: number;
     protected _played: TimeRanges = new TimeRanges();
     protected _preload: string = 'none';
-    protected _readyState: number;
+    protected _readyState: number = MediaElement.HAVE_NOTHING;
     protected _seekable: TimeRanges = new TimeRanges();
     protected _seeking: boolean = false;
     protected _src: string;
@@ -65,11 +64,12 @@ namespace videomock.dom {
     protected _videoTracks: VideoTrackList; // = new VideoTrackList();
     protected _volume: number = constant.Common.DEFAULT_VOLUME;
 
-    protected _eventHandler: event.EventHandler = new event.EventHandler();
-
-    protected _handledEvents: Array<string>;
+    //protected _handledEvents: Array<string>;
 
     static implement(classObject: Function): void {
+      // super implementation
+      DomElement.implement(classObject)
+
       // gen getters/ setters [haveGetter, haveSetter ]
       var properties = {
         'audioTracks': [true, false],
@@ -115,25 +115,8 @@ namespace videomock.dom {
         MediaElement.prototype.pause.call(this)
       }
 
-
       classObject.prototype.play = function(): void {
         MediaElement.prototype.play.call(this)
-      }
-
-      classObject.prototype.addEventListener = function(type: string, listener: EventListener, useCapture: boolean = false): void {
-        MediaElement.prototype.addEventListener.call(this, type, listener, useCapture)
-      }
-
-      classObject.prototype._dispatchEvent = function(eventName: string, eventData?: any): void {
-        MediaElement.prototype._dispatchEvent.call(this, eventName, eventData)
-      }
-
-      classObject.prototype._handleEvent = function(evt: Event): void {
-        MediaElement.prototype._handleEvent.call(this, evt)
-      }
-
-      classObject.prototype._getHandledEvents = function(): Array<string> {
-        return MediaElement.prototype._getHandledEvents.call(this)
       }
     }
 
@@ -164,37 +147,6 @@ namespace videomock.dom {
      */
     public play(): void {
       throw 'to be implemented !'
-    }
-
-    /**
-     * Override addEventListener to handle dedicated media event.
-     */
-    public addEventListener(type: string, listener: EventListener, useCapture: boolean = false): void {
-      if (this._getHandledEvents().indexOf(type) > -1) {
-        this._eventHandler.addEventListener(type, listener, useCapture)
-      } else {
-        // Super call
-        HTMLElement.prototype.addEventListener.apply(this, arguments)
-      }
-    }
-
-    protected _dispatchEvent(eventName: string, eventData?: any): void {
-      this._handleEvent(new CustomEvent(eventName, eventData))
-    }
-
-    protected _handleEvent(evt: Event): void {
-      this._eventHandler.handleEvent(evt)
-    }
-
-    protected _getHandledEvents(): Array<string> {
-      // avoid loop on mediaEvent each time
-      if (!this._handledEvents) {
-        this._handledEvents = []
-        for (var evt in event.MediaEvent) {
-          this._handledEvents.push(event.MediaEvent[evt])
-        }
-      }
-      return this._handledEvents
     }
   }
 }
