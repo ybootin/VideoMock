@@ -25,7 +25,7 @@ namespace videomock.dom {
    *      extends: 'div'
    *    })
    */
-  export class MediaElement extends DomElement {
+  export abstract class MediaElement extends DomElement {
 
     static HAVE_NOTHING: number = 0; // - no information whether or not the audio/video is ready
     static HAVE_METADATA: number = 1; // - metadata for the audio/video is ready
@@ -103,21 +103,17 @@ namespace videomock.dom {
         helper.ObjectHelper.genGetterSetter(classObject, prop, properties[prop][0], properties[prop][1])
       }
 
-      classObject.prototype.canPlayType = function(type: string): string {
-        return MediaElement.prototype.canPlayType.call(this, type)
-      }
+      // overriden prototype methods
+      var methods = [
+        'canPlayType',
+        'load',
+        'pause',
+        'play',
+      ]
 
-      classObject.prototype.load = function(): void {
-        MediaElement.prototype.load.call(this)
-      }
-
-      classObject.prototype.pause = function(): void {
-        MediaElement.prototype.pause.call(this)
-      }
-
-      classObject.prototype.play = function(): void {
-        MediaElement.prototype.play.call(this)
-      }
+      methods.forEach((item): void => {
+        classObject.prototype[item] = MediaElement.prototype[item]
+      })
     }
 
     /**

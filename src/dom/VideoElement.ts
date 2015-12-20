@@ -21,7 +21,7 @@ namespace videomock.dom {
    *    })
    *
    */
-  export class VideoElement extends MediaElement {
+  export abstract class VideoElement extends MediaElement {
     protected _poster: string;
     protected _width: number = 0;
     protected _height: number = 0;
@@ -49,25 +49,18 @@ namespace videomock.dom {
         helper.ObjectHelper.genGetterSetter(classObject, prop, properties[prop][0], properties[prop][1])
       }
 
-      classObject.prototype.getVideoPlaybackQuality = function(): VideoPlaybackQuality {
-        return VideoElement.prototype.getVideoPlaybackQuality.call(this)
-      }
+      // overriden prototype methods
+      var methods = [
+        'getVideoPlaybackQuality',
+        'webkitEnterFullScreen',
+        'webkitEnterFullscreen',
+        'webkitExitFullScreen',
+        'webkitExitFullscreen',
+      ]
 
-      classObject.prototype.webkitEnterFullScreen = function(): void {
-        VideoElement.prototype.webkitEnterFullScreen.call(this)
-      }
-
-      classObject.prototype.webkitEnterFullscreen = function(): void {
-        VideoElement.prototype.webkitEnterFullscreen.call(this)
-      }
-
-      classObject.prototype.webkitExitFullScreen = function(): void {
-        VideoElement.prototype.webkitExitFullScreen.call(this)
-      }
-
-      classObject.prototype.webkitExitFullscreen = function(): void {
-        VideoElement.prototype.webkitExitFullscreen.call(this)
-      }
+      methods.forEach((item): void => {
+        classObject.prototype[item] = VideoElement.prototype[item]
+      })
     }
 
     /**

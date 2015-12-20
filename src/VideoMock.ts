@@ -25,7 +25,7 @@ namespace videomock {
    * based on typescript interface :
    *   https://github.com/Microsoft/TypeScript/blob/master/lib/lib.dom.d.ts
    *
-   * keep NON HTMLVideoElement attributes/methods start with _, to prevent extends conflict
+   * keep NON HTMLVideoElement attributes/methods start with _, even if they are public scope to prevent extends conflict
    */
   export class VideoMock extends dom.VideoElement {
 
@@ -43,48 +43,24 @@ namespace videomock {
       // super call
       dom.VideoElement.implement(classObject)
 
-      // public exposed method
-      classObject.prototype.play = function(): void {
-        VideoMock.prototype.play.call(this)
-      }
+      // overriden prototype methods
+      var methods = [
+        'play',
+        'pause',
+        'load',
+        '_startPlaybackTimer',
+        '_stopPlaybackTimer',
+        '_replay',
+        '_handleEvent',
+        '_updateDimensions',
+        '_set_src',
+        '_set_width',
+        '_set_height',
+      ]
 
-      classObject.prototype.pause = function(): void {
-        VideoMock.prototype.pause.call(this)
-      }
-
-      classObject.prototype.load = function(): void {
-        VideoMock.prototype.load.call(this)
-      }
-
-      // Protected methods
-      classObject.prototype._startPlaybackTimer = function(): void {
-        VideoMock.prototype._startPlaybackTimer.call(this)
-      }
-
-      classObject.prototype._stopPlaybackTimer = function(): void {
-        VideoMock.prototype._stopPlaybackTimer.call(this)
-      }
-
-      classObject.prototype._replay = function(): void {
-        VideoMock.prototype._replay.call(this)
-      }
-
-      classObject.prototype._handleEvent = function(evt: Event): void {
-        VideoMock.prototype._handleEvent.call(this, evt)
-      }
-
-      classObject.prototype._updateDimensions = function(): void {
-        VideoMock.prototype._updateDimensions.call(this)
-      }
-      classObject.prototype._set_src = function(value): void {
-        VideoMock.prototype._set_src.call(this, value)
-      }
-      classObject.prototype._set_width = function(value): void {
-        VideoMock.prototype._set_width.call(this, value)
-      }
-      classObject.prototype._set_height = function(value): void {
-        VideoMock.prototype._set_height.call(this, value)
-      }
+      methods.forEach((item): void => {
+        classObject.prototype[item] = VideoMock.prototype[item]
+      })
     }
 
     public play(): void {

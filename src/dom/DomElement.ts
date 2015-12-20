@@ -12,21 +12,17 @@ namespace videomock.dom {
     protected _handledEvents: Array<string>;
 
     static implement(classObject: Function): void {
-      classObject.prototype.addEventListener = function(type: string, listener: EventListener, useCapture: boolean = false): void {
-        DomElement.prototype.addEventListener.call(this, type, listener, useCapture)
-      }
+      // overriden prototype methods
+      var methods = [
+        'addEventListener',
+        '_dispatchEvent',
+        '_handleEvent',
+        '_getHandledEvents',
+      ]
 
-      classObject.prototype._dispatchEvent = function(eventName: string, eventData?: any): void {
-        DomElement.prototype._dispatchEvent.call(this, eventName, eventData)
-      }
-
-      classObject.prototype._handleEvent = function(evt: Event): void {
-        DomElement.prototype._handleEvent.call(this, evt)
-      }
-
-      classObject.prototype._getHandledEvents = function(): Array<string> {
-        return DomElement.prototype._getHandledEvents.call(this)
-      }
+      methods.forEach((item): void => {
+        classObject.prototype[item] = DomElement.prototype[item]
+      })
     }
 
     /**
