@@ -1,9 +1,11 @@
 <!doctype html>
 <html>
   <head>
-
+    <script src='https://raw.githubusercontent.com/webcomponents/webcomponentsjs/master/webcomponents.js'></script>
+    <script src="../dist/videomock.js"></script>
   </head>
   <body>
+    <h2>Javascript implementation test</h2>
     <div id="video-container"></div>
     <div id="video-constrols">
       <div>
@@ -22,7 +24,6 @@
         <input type="button" value="resize 1200x720" onclick="video.width=1200;video.height=720;" /> &nbsp;
       </div>
     </div>
-    <script src="../dist/videomock.js"></script>
     <script>
       // Log all events
       function onEvent(evt) {
@@ -46,5 +47,8 @@
       // add to DOM
       document.getElementById('video-container').appendChild(video)
     </script>
+    <hr>
+    <h2>HTML tag implementation</h2>
+    <div is="video-mock" src="http://media-url" width="400" height="250" autoplay="true"></div>
   </body>
 </html>

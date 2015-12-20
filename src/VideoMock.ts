@@ -43,6 +43,8 @@ namespace videomock {
         '_set_src',
         '_set_width',
         '_set_height',
+        '_set_autoplay',
+        '_set_preload',
       ]
 
       methods.forEach((item): void => {
@@ -139,6 +141,10 @@ namespace videomock {
 
         if (this._readyState === dom.MediaElement.HAVE_FUTURE_DATA && loaded > enoughData) {
           this._readyState = dom.MediaElement.HAVE_ENOUGH_DATA
+
+          if (this._autoplay) {
+            this.play()
+          }
         }
 
         this._handleEvent(new ProgressEvent(event.MediaEvent.progress, {
@@ -214,9 +220,17 @@ namespace videomock {
         this._sourceData = constant.Source.getDataFromSource(constant.Source.VIDEO_640x360_30S)
       }
 
-      if (this._preload) {
+      if (this._preload || this._autoplay) {
         this.load()
       }
+    }
+
+    public _set_autoplay(): void {
+      this.play()
+    }
+
+    public _set_preload(): void {
+      this.load()
     }
 
     protected _startPlaybackTimer(): void {

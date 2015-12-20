@@ -9,12 +9,6 @@ interface Document {
 namespace videomock {
   var custom = Object.create(HTMLDivElement.prototype)
 
-  var updateWidthHeight = function(scope: HTMLVideoElement) {
-    var rect = scope.getBoundingClientRect()
-    scope.width = rect.width
-    scope.height = rect.height
-  }
-
   var ui: videomock.ui.VideoMockUI
 
   custom.createdCallback = function() {
@@ -35,6 +29,18 @@ namespace videomock {
       this.height = dom.VideoElement.DEFAULT_VIDEOHEIGHT
     }
 
+    var checkAttributes = [
+      'width',
+      'height',
+      'autoplay',
+    ]
+
+    checkAttributes.forEach((att: string): void => {
+      if (!!this.getAttribute(att)) {
+        this.attributeChangedCallback(att)
+      }
+    })
+
     this.appendChild(ui.getContainer())
   }
 
@@ -45,9 +51,21 @@ namespace videomock {
   custom.attributeChangedCallback = function(attributeName: string): void {
     switch (attributeName) {
       case 'width':
+        this.width = Number(this.getAttribute('width'))
+        break
       case 'height':
+        this.height = Number(this.getAttribute('height'))
+        break
       case 'style':
-        updateWidthHeight(this)
+        var rect = this.getBoundingClientRect()
+        this.width = rect.width
+        this.height = rect.height
+        break
+      case 'src':
+        this.src = this.getAttribute('src')
+        break
+      case 'autoplay':
+        this.autoplay = Boolean(this.getAttribute('autoplay'))
         break
     }
   }
