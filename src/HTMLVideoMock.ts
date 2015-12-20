@@ -8,38 +8,38 @@ interface Document {
 
 namespace videomock {
   var custom = Object.create(HTMLDivElement.prototype)
-  var setWidth = function(scope: HTMLElement, value: number): void {
-     videomock.VideoMock.prototype._set_width.call(scope, scope.getAttribute('width'))
-  }
-  var setHeight = function(scope: HTMLElement, value: number): void {
-     videomock.VideoMock.prototype._set_height.call(scope, scope.getAttribute('height'))
+
+  var updateWidthHeight = function(scope: HTMLVideoElement) {
+    var rect = scope.getBoundingClientRect()
+    scope.width = rect.width
+    scope.height = rect.height
   }
 
-  var updateWidthHeight = function(scope: HTMLElement) {
-    var rect = scope.getBoundingClientRect()
-    setWidth(scope, rect.width)
-    setHeight(scope, rect.height)
-  }
+  var ui: videomock.ui.VideoMockUI
 
   custom.createdCallback = function() {
-    // Constructor
-    videomock.VideoMock.call(this)
+    // Implement & Construct
+    VideoMock.implement(HTMLVideoMock)
+    VideoMock.call(this)
 
     // Init UI
-    var ui = new videomock.ui.VideoMockUI(this)
-    this.appendChild(ui.getContainer())
+    ui = new videomock.ui.VideoMockUI(this)
   }
 
   custom.attachedCallback = function(): void {
-    // define default size
-    // var rect = this.getBoundingClientRect()
+    // Use default size if unspecified
+    if (!this.width) {
+      this.width = dom.VideoElement.DEFAULT_VIDEOWIDTH
+    }
+    if (!this.height) {
+      this.height = dom.VideoElement.DEFAULT_VIDEOHEIGHT
+    }
 
-    // setWidth(this, rect.width || dom.VideoElement.DEFAULT_VIDEOWIDTH)
-    // setHeight(this, rect.height || dom.VideoElement.DEFAULT_VIDEOHEIGHT)
+    this.appendChild(ui.getContainer())
   }
 
   custom.detachedCallback = function(): void {
-    // ideally, should destroy UI
+    this.removeChild(ui.getContainer())
   }
 
   custom.attributeChangedCallback = function(attributeName: string): void {
@@ -57,5 +57,4 @@ namespace videomock {
     extends: 'div'
   })
 
-  VideoMock.implement(HTMLVideoMock)
 }

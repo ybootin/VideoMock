@@ -10,20 +10,7 @@ namespace videomock {
    *
    * a working implementation of the HTMLVideoElement, to test Video tag without video codec
    *
-   * USAGE :
-   *    var Custom = Object.create(HTMLDivElement.prototype)
-   *    Custom.createdCallback = function() {
-   *      videomock.VideoMock.call(this)
-   *    }
-   *    videomock.VideoMock.implement(Custom)
-   *
-   *    var HTMLCustomElement = document.registerElement('video-mock', {
-   *      prototype: Custom,
-   *      extends: 'div'
-   *    })
-   *
-   * based on typescript interface :
-   *   https://github.com/Microsoft/TypeScript/blob/master/lib/lib.dom.d.ts
+   * @see HTMLVideoMock for implementation
    *
    * keep NON HTMLVideoElement attributes/methods start with _, even if they are public scope to prevent extends conflict
    */
@@ -197,10 +184,16 @@ namespace videomock {
     public _updateDimensions(): void {
       // calculate base video size !
       var videoRatio: number = this._sourceData.width / this._sourceData.height
-      var ratio: number = this._width / this._sourceData.width
-      // no pillarbox, only letter box for the moment, we'll see later to choose between pillar/letterbox
-      this._videoWidth = this._width
-      this._videoHeight = this._width / videoRatio
+      var requestRatio: number = this._width / this._height
+
+      // pillarbox video
+      if (requestRatio > videoRatio) {
+        this._videoHeight = this._height
+        this._videoWidth = this._height * videoRatio
+      } else { // letterbox video
+        this._videoWidth = this._width
+        this._videoHeight = this._width / videoRatio
+      }
     }
 
     /**

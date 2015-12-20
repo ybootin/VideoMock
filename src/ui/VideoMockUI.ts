@@ -42,7 +42,7 @@ namespace videomock.ui {
 
       var tmpl = '<div style="overflow:hidden;width:' + this.video.videoWidth + 'px;height:' + this.video.videoHeight + 'px;background-color:#CCCCCC;position:absolute;left:' + (this.video.width - this.video.videoWidth) / 2 + 'px;top:' + (this.video.height - this.video.videoHeight) / 2 + 'px">' +
         '<div style="z-index:2;background-color:#999999;position:absolute;bottom:0px;height:' + this.video.videoHeight + 'px;width:' + percentPlayed + '%"></div>' +
-        '<div style="font-family:monaco;position:absolute;top:0;left:0;z-index:2;padding:10px;">' +
+        '<div style="font-size:11px;font-family:monaco;position:absolute;top:0;left:0;z-index:2;padding:10px;">' +
         '<h3>VideoMock info</h3>' +
         '<div>URL: ' + this.video.src + '</div>' +
       '<div>Size: ' + this.video.width + 'x' + this.video.height + ' (video : ' + this.video.videoWidth + 'x' + this.video.videoHeight + ')</div>' +
