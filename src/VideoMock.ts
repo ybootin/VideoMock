@@ -19,6 +19,8 @@ namespace videomock {
     protected _playbackTimerId: number;
     protected _hasStarted: boolean;
     protected _hasLoadStarted: boolean;
+    protected _bytesLoaded: number;
+    protected _bytesTotal: number;
 
     protected _sourceData: model.ISourceData = {
       width: 640,
@@ -40,6 +42,7 @@ namespace videomock {
         '_replay',
         '_handleEvent',
         '_updateDimensions',
+        '_setMetadataLoaded',
         '_set_src',
         '_set_width',
         '_set_height',
@@ -53,15 +56,9 @@ namespace videomock {
     }
 
     public play(): void {
-
-      // a simple way to simulate async play after load have started
-      // as load will dispatch all event
+      // trigger load + autoplay
       if (!this._hasLoadStarted) {
-        this.load()
-        setTimeout(() => {
-          this.play()
-        }, 100)
-        return
+        return this.load(true)
       }
 
       if (!this._hasStarted) {
@@ -84,7 +81,11 @@ namespace videomock {
       }
     }
 
-    public load(): void {
+    public load(autoplay?: boolean): void {
+      if (this._hasLoadStarted || !this._src) {
+        return
+      }
+
       this._hasLoadStarted = true
 
       this._currentSrc = this._src
@@ -96,53 +97,43 @@ namespace videomock {
       var intervalId: number
       var virtualSize: number = 3000 // size of the mediafile in Ko
       var prevLoaded = 0
-      var loaded = 0
       var step = 100
-      var first: boolean = true
       var ko: number = 1024 // One Ko
       var enoughData: number = 200 // enough data in ko to start video playback
       var pos: number = 0
 
-      intervalId = setInterval((): void => {
-        prevLoaded = loaded
-        loaded += step * ko
+      this._bytesTotal = virtualSize * ko
 
-        if (loaded >= virtualSize) {
-          loaded = virtualSize * ko
+      intervalId = setInterval((): void => {
+        if (this._bytesLoaded < this._bytesTotal) {
+          prevLoaded = this._bytesLoaded
+          this._bytesLoaded += step * ko
         }
 
-        if (loaded === virtualSize) {
+        if (this._bytesLoaded >= this._bytesTotal) {
+          this._bytesLoaded = this._bytesTotal
+        }
+
+        if (this._bytesLoaded === this._bytesTotal) {
           clearInterval(intervalId)
         }
 
         // add a buffered timeRange
-        this._buffered.addRange(prevLoaded, loaded)
+        this._buffered.addRange(prevLoaded, this._bytesLoaded)
 
         // simulate the load progress with readyState and events
         if (pos === 0) {
-          first = false
-          this._dispatchEvent(event.MediaEvent.loadeddata)
-
-          // set metadata before dispatch loadedmetadata event
-          this._duration = this._sourceData.duration
-
-          this._dispatchEvent(event.MediaEvent.loadedmetadata)
-          this._dispatchEvent(event.MediaEvent.durationchange)
-          this._dispatchEvent(event.MediaEvent.canplay)
-          this._dispatchEvent(event.MediaEvent.canplaythrough)
-
-          this._readyState = dom.MediaElement.HAVE_METADATA
-
-        } else if (pos === 1) {
+          this._setMetadataLoaded()
+        } else if (pos === 1 && this._readyState < dom.MediaElement.HAVE_CURRENT_DATA) {
           this._readyState = dom.MediaElement.HAVE_CURRENT_DATA
-        } else if (pos === 2) {
+        } else if (pos === 2 && this._readyState < dom.MediaElement.HAVE_FUTURE_DATA) {
           this._readyState = dom.MediaElement.HAVE_FUTURE_DATA
         }
 
-        if (this._readyState === dom.MediaElement.HAVE_FUTURE_DATA && loaded > enoughData) {
+        if (this._readyState === dom.MediaElement.HAVE_FUTURE_DATA && this._bytesLoaded > enoughData) {
           this._readyState = dom.MediaElement.HAVE_ENOUGH_DATA
 
-          if (this._autoplay) {
+          if (this._autoplay || autoplay) {
             this.play()
           }
         }
@@ -225,12 +216,43 @@ namespace videomock {
       }
     }
 
-    public _set_autoplay(): void {
+    public _set_autoplay(value: boolean): void {
+      this._autoplay = value
       this.play()
     }
 
-    public _set_preload(): void {
-      this.load()
+    public _set_preload(value: string): void {
+      this._preload = value
+
+      switch(value) {
+        case 'none':
+          break
+        case 'metadata':
+          this._setMetadataLoaded()
+          break
+         case 'auto':
+         case '':
+           this.load()
+           break
+         default:
+      }
+
+    }
+
+    protected _setMetadataLoaded(): void {
+      if (this._readyState < dom.MediaElement.HAVE_METADATA) {
+        this._dispatchEvent(event.MediaEvent.loadeddata)
+
+        // set metadata before dispatch loadedmetadata event
+        this._duration = this._sourceData.duration
+
+        this._dispatchEvent(event.MediaEvent.loadedmetadata)
+        this._dispatchEvent(event.MediaEvent.durationchange)
+        this._dispatchEvent(event.MediaEvent.canplay)
+        this._dispatchEvent(event.MediaEvent.canplaythrough)
+
+        this._readyState = dom.MediaElement.HAVE_METADATA
+      }
     }
 
     protected _startPlaybackTimer(): void {
@@ -264,7 +286,9 @@ namespace videomock {
     protected _replay(): void {
       this._stopPlaybackTimer()
       this._currentTime = 0
+      this._readyState = dom.MediaElement.HAVE_FUTURE_DATA
       this._hasStarted = false
+      this._hasLoadStarted = false
       this.play()
     }
   }

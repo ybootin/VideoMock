@@ -39,8 +39,10 @@
         video.addEventListener(videomock.event.MediaEvent[evt], onEvent)
       }
 
-      video.width = 400
-      video.height = 250
+      // video.width = 400
+      // video.height = 250
+      // video.style.width = '400px'
+      // video.style.height = '250px'
 
       video.play();
 
@@ -49,6 +51,6 @@
     </script>
     <hr>
     <h2>HTML tag implementation</h2>
-    <div is="video-mock" src="http://media-url" width="400" height="250" autoplay="true"></div>
+    <div is="video-mock" src="http://media-url" style="width:400px;height:250px"></div>
   </body>
 </html>

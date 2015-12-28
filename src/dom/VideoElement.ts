@@ -28,11 +28,6 @@ namespace videomock.dom {
     protected _videoHeight: number = 0;
     protected _videoWidth: number = 0;
 
-    // W3C specifications
-    // @see http://dev.w3.org/html5/spec-preview/the-video-element.html#dom-video-videowidth
-    static DEFAULT_VIDEOWIDTH: number = 300
-    static DEFAULT_VIDEOHEIGHT: number = 150
-
     static implement(classObject: Function): void {
       // super implementation
       MediaElement.implement(classObject)

@@ -12,8 +12,7 @@ namespace videomock {
   var ui: videomock.ui.VideoMockUI
 
   custom.createdCallback = function() {
-    // Implement & Construct
-    VideoMock.implement(HTMLVideoMock)
+    // Construct, super call
     VideoMock.call(this)
 
     // Init UI
@@ -23,16 +22,21 @@ namespace videomock {
   custom.attachedCallback = function(): void {
     // Use default size if unspecified
     if (!this.width) {
-      this.width = dom.VideoElement.DEFAULT_VIDEOWIDTH
+      this.width = constant.Common.DEFAULT_VIDEOWIDTH
     }
     if (!this.height) {
-      this.height = dom.VideoElement.DEFAULT_VIDEOHEIGHT
+    this.height = constant.Common.DEFAULT_VIDEOHEIGHT
     }
 
+    // List of attributes that can be chnage in DOM
     var checkAttributes = [
       'width',
       'height',
       'autoplay',
+      'loop',
+      'preload',
+      'src',
+      'style',
     ]
 
     checkAttributes.forEach((att: string): void => {
@@ -51,10 +55,8 @@ namespace videomock {
   custom.attributeChangedCallback = function(attributeName: string): void {
     switch (attributeName) {
       case 'width':
-        this.width = Number(this.getAttribute('width'))
-        break
       case 'height':
-        this.height = Number(this.getAttribute('height'))
+        this[attributeName] = Number(this.getAttribute(attributeName))
         break
       case 'style':
         var rect = this.getBoundingClientRect()
@@ -65,7 +67,9 @@ namespace videomock {
         this.src = this.getAttribute('src')
         break
       case 'autoplay':
-        this.autoplay = Boolean(this.getAttribute('autoplay'))
+      case 'preload':
+      case 'loop':
+        this[attributeName] = Boolean(this.getAttribute(attributeName))
         break
     }
   }
@@ -74,5 +78,8 @@ namespace videomock {
     prototype: custom,
     extends: 'div'
   })
+
+  // Implements
+  VideoMock.implement(HTMLVideoMock)
 
 }

@@ -6,6 +6,9 @@ namespace videomock.ui {
    */
   export class VideoMockUI {
     private mainContainer: HTMLDivElement;
+    private videoContainer: HTMLDivElement;
+    private contentContainer: HTMLDivElement;
+    private progressBar: HTMLDivElement;
     private status: string = 'unstarted';
 
     constructor(private video: HTMLVideoElement) {
@@ -18,12 +21,44 @@ namespace videomock.ui {
       video.addEventListener(event.MediaEvent.playing, () => this.onPlay())
       video.addEventListener(event.MediaEvent.play, () => this.onPlay())
 
-      // main container, will
+      // main container, black background will provide letterbox/pillarbox
       this.mainContainer = <HTMLDivElement>document.createElement('div')
       helper.HTMLHelper.applyStyle(this.mainContainer, {
         'position': 'relative',
         'backgroundColor': '#000000',
       })
+
+      // simulate video size, absolutly centerd on background
+      this.videoContainer = <HTMLDivElement>document.createElement('div')
+      helper.HTMLHelper.applyStyle(this.videoContainer, {
+        'overflow':'hidden',
+        'backgroundColor':'#CCCCCC',
+        'position':'absolute',
+      })
+
+      // Just to provide an animation
+      this.progressBar = <HTMLDivElement>document.createElement('div')
+      helper.HTMLHelper.applyStyle(this.progressBar, {
+        'zIndex' :'2',
+        'backgroundColor' :'#999999',
+        'position': 'absolute',
+        'bottom': '0px',
+      })
+
+      this.contentContainer = <HTMLDivElement>document.createElement('div')
+      helper.HTMLHelper.applyStyle(this.contentContainer, {
+        'fontSize' :'11px',
+        'fontFamily':'monaco',
+        'position':'absolute',
+        'top':'0',
+        'left':'0',
+        'zIndex':'3',
+        'padding':'10px',
+      })
+
+      this.videoContainer.appendChild(this.progressBar)
+      this.videoContainer.appendChild(this.contentContainer)
+      this.mainContainer.appendChild(this.videoContainer)
 
       this.updateDisplay()
     }
@@ -40,19 +75,26 @@ namespace videomock.ui {
         'height': this.video.height + 'px',
       })
 
-      var tmpl = '<div style="overflow:hidden;width:' + this.video.videoWidth + 'px;height:' + this.video.videoHeight + 'px;background-color:#CCCCCC;position:absolute;left:' + (this.video.width - this.video.videoWidth) / 2 + 'px;top:' + (this.video.height - this.video.videoHeight) / 2 + 'px">' +
-        '<div style="z-index:2;background-color:#999999;position:absolute;bottom:0px;height:' + this.video.videoHeight + 'px;width:' + percentPlayed + '%"></div>' +
-        '<div style="font-size:11px;font-family:monaco;position:absolute;top:0;left:0;z-index:2;padding:10px;">' +
-        '<h3>VideoMock info</h3>' +
-        '<div>URL: ' + this.video.src + '</div>' +
-      '<div>Size: ' + this.video.width + 'x' + this.video.height + ' (video : ' + this.video.videoWidth + 'x' + this.video.videoHeight + ')</div>' +
-        '<div>Progress: ' + Math.round(this.video.currentTime) + '/' + this.video.duration + 's</div>' +
-        '<div>Volume: ' + this.video.volume + '</div>' +
-        '<div>Status: ' + this.status + '</div>' +
-        '<div>'
-      '</div>';
+      helper.HTMLHelper.applyStyle(this.videoContainer, {
+        'width': this.video.videoWidth + 'px',
+        'height': this.video.videoHeight + 'px',
+        'left': (this.video.width - this.video.videoWidth) / 2 + 'px',
+        'top': (this.video.height - this.video.videoHeight) / 2 + 'px'
+      })
 
-      this.mainContainer.innerHTML = tmpl
+      helper.HTMLHelper.applyStyle(this.progressBar, {
+        'height': this.video.videoHeight + 'px',
+        'width': percentPlayed + '%'
+      })
+
+      var content = '<h3>VideoMock info</h3>' +
+        'URL: ' + this.video.src +
+        '<br/>Size: ' + this.video.width + 'x' + this.video.height + ' (video : ' + Math.round(this.video.videoWidth) + 'x' + Math.round(this.video.videoHeight) + ')' +
+        '<br/>Progress: ' + Math.round(this.video.currentTime) + '/' + this.video.duration + 's (' + Math.round(percentPlayed) + '%)' +
+        '<br/>Volume: ' + this.video.volume +
+        '<br/>Status: ' + this.status
+
+      this.contentContainer.innerHTML = content
     }
 
     private onPaused(): void {
