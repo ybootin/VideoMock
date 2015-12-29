@@ -33,12 +33,18 @@
       }
 
       var video = new videomock.HTMLVideoMock(); //document.createElement('video-mock')
-      video.src = videomock.constant.Source.VIDEO_640x360_30S;
+      video.src = videomock.VideoMockURL.gen({
+        'width': 640,
+        'height': 360,
+        'duration': 60,
+      });
 
+      // register all Media events
       for (var evt in videomock.event.MediaEvent) {
         video.addEventListener(videomock.event.MediaEvent[evt], onEvent)
       }
 
+      // size test, both width/height and style work
       // video.width = 400
       // video.height = 250
       // video.style.width = '400px'
@@ -51,6 +57,6 @@
     </script>
     <hr>
     <h2>HTML tag implementation</h2>
-    <div is="video-mock" src="http://media-url" style="width:400px;height:250px"></div>
+    <div is="video-mock" src="http://will-use-default" autoplay="true" loop="true" style="width:400px;height:250px"></div>
   </body>
 </html>

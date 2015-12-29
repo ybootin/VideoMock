@@ -1,7 +1,7 @@
 /// <reference path="dom/VideoElement.ts" />
 /// <reference path="ui/VideoMockUI.ts" />
 /// <reference path="model/ISourceData.ts" />
-/// <reference path="constant/Source.ts" />
+/// <reference path="VideoMockURL.ts" />
 /// <reference path="event/MediaEvent.ts" />
 
 namespace videomock {
@@ -22,11 +22,7 @@ namespace videomock {
     protected _bytesLoaded: number;
     protected _bytesTotal: number;
 
-    protected _sourceData: model.ISourceData = {
-      width: 640,
-      height: 360,
-      duration: 30
-    };
+    protected _sourceData: model.ISourceData = videomock.VideoMockURL.DEFAULT;
 
     static implement(classObject: Function): void {
       // super call
@@ -140,7 +136,7 @@ namespace videomock {
 
         this._handleEvent(new ProgressEvent(event.MediaEvent.progress, {
           'lengthComputable': true,
-          'loaded': loaded,
+          'loaded': this._bytesLoaded,
           'total': virtualSize * 1000
         }))
 
@@ -205,11 +201,7 @@ namespace videomock {
       this._hasStarted = false
       this._hasLoadStarted = false
 
-      try {
-        this._sourceData = constant.Source.getDataFromSource(value)
-      } catch (e) {
-        this._sourceData = constant.Source.getDataFromSource(constant.Source.VIDEO_640x360_30S)
-      }
+      this._sourceData = VideoMockURL.parse(value)
 
       if (this._preload || this._autoplay) {
         this.load()
@@ -225,8 +217,6 @@ namespace videomock {
       this._preload = value
 
       switch(value) {
-        case 'none':
-          break
         case 'metadata':
           this._setMetadataLoaded()
           break
@@ -234,9 +224,7 @@ namespace videomock {
          case '':
            this.load()
            break
-         default:
       }
-
     }
 
     protected _setMetadataLoaded(): void {
