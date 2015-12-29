@@ -34,12 +34,22 @@
         </div>
 
         <script type="text/javascript">
+            var adWidth = 640
+            var adHeight = 360
             var container = document.getElementById("vpaid-container");
-            var script = document.createElement('script');
+            var iframe = document.createElement('iframe');
+            container.appendChild(iframe)
+            iframe.style.width = adWidth + 'px'
+            iframe.style.height = adHeight + 'px'
+            iframe.style.frameBorder = '0'
+            iframe.style.border = '0'
 
-            script.onload = function() {
+            var src = "https://secure-ds.serving-sys.com/BurstingScript/VPAIDAPI.js"
+
+            onVpaidLoaded = function(vpaidAd) {
                 // retrieve the creative
-                var vpaidAd = window.getVPAIDAd();
+                //var vpaidAd = window.getVPAIDAd();
+                var container = iframe.contentDocument.getElementById('container')
 
                 // expose to global scope to play with vpaidAd object in console :)
                 window['vpaidAd'] = vpaidAd;
@@ -70,6 +80,11 @@
                     vpaidAd.startAd();
                 }, 'AdLoaded');
 
+                vpaidAd.subscribe(function(evt) {
+                  iframe.style.width = vpaidAd.getAdWidth() + 'px'
+                  iframe.style.height = vpaidAd.getAdHeight + 'px'
+                }, 'AdSizeChange');
+
                 // Handle error
                 vpaidAd.subscribe(function(evt) {
                     vpaidAd.stopAd();
@@ -81,13 +96,14 @@
                         window.open(url || 'http://will-use-vast-click-thru');
                     }
                 }, "AdClickThru");
-                var mock = new videomock.HTMLVideoMock()
+                var mock = new iframe.contentWindow.videomock.HTMLVideoMock()
+                mock.style.zIndex = '0'
                 container.appendChild(mock)
 
                 // required to instanciate the VPAID ad, specified in the IAB VPAID JS spec
                 var environmentVars = {
                     "slot" : container,
-                    "videoSlot" : mock, // not required
+                    "videoSlot" : mock,
                     "videoSlotCanAutoPlay" : true
                 }
 
@@ -98,12 +114,18 @@
                 // }
                 var adParameters = '{"tag" : "https://bs.serving-sys.com/BurstingPipe/adServer.bs?cn=rsb&c=31&ai=27815423&dg=3550073&sdg=6120010&PluID=0&sessionId=2809339119839207635&filghtId=&&ta=-1&optOut=0","skipoffset":"5"}'
                 // init the ad
-                vpaidAd.initAd(640, 400, 'normal', 512, adParameters, environmentVars);
+                vpaidAd.initAd(adWidth, adHeight, 'normal', 512, adParameters, environmentVars);
             }
 
-            script.src = "https://secure-ds.serving-sys.com/BurstingScript/VPAIDAPI.js"//"//cdn.teads.tv/media/player/teads-vpaid-video.js";
+            var tmpl = '<!doctype html><html><head><scr' + 'ipt src="../dist/videomock.js"></scr' + 'ipt><scr' + 'ipt>var script=document.createElement("script");script.onload=function() {window.parent.onVpaidLoaded(window.getVPAIDAd())};document.head.appendChild(script);script.src="' + src + '";</scr' + 'ipt></head><body style="padding:0px;margin:0px"><div id="container"></div></body></html>'
 
-            document.body.appendChild(script);
+            iframe.contentWindow.document.write(tmpl)
+            iframe.contentWindow.document.close()
+            //"//cdn.teads.tv/media/player/teads-vpaid-video.js";
+
+            //onVpaidLoaded(iframe.contentWindow.getVPAIDAd())
+
+            //document.body.appendChild(script);
         </script>
     </body>
 </html>

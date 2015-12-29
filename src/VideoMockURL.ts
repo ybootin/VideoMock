@@ -15,7 +15,7 @@ namespace videomock {
     static parse(src: string): model.ISourceData {
       var data: model.ISourceData
       try {
-        data = JSON.parse(src)
+        data = JSON.parse(src) || {}
       } catch (e) {
         data = {}
       }

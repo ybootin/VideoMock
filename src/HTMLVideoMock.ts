@@ -28,22 +28,42 @@ namespace videomock {
     this.height = constant.Common.DEFAULT_VIDEOHEIGHT
     }
 
-    // List of attributes that can be chnage in DOM
+    // DOM initialisation inline attributes
     var checkAttributes = [
+      'style',
       'width',
       'height',
+      'src',
+      'preload',
       'autoplay',
       'loop',
-      'preload',
-      'src',
-      'style',
     ]
 
     checkAttributes.forEach((att: string): void => {
-      if (!!this.getAttribute(att)) {
+      //if (this.hasAttribute(att)) {
         this.attributeChangedCallback(att)
-      }
+      //}
     })
+
+    // dirty fix
+     setInterval(() =>  {
+       if (!this.style) {
+         return
+       }
+       var parseStyle = function(styleAtt) {
+         if (styleAtt && styleAtt.indexOf('px')) {
+           return Number(styleAtt.replace('px', ''))
+         }
+       }
+       var width = parseStyle(this.style.width)
+       var height = parseStyle(this.style.height)
+       if (width) {
+         this.width = width
+       }
+       if (height) {
+         this.height = height
+       }
+     }, 10)
 
     this.appendChild(ui.getContainer())
   }
@@ -53,15 +73,23 @@ namespace videomock {
   }
 
   custom.attributeChangedCallback = function(attributeName: string): void {
+    if (!this.hasAttribute(attributeName)) {
+      return
+    }
+    var value = this.getAttribute(attributeName)
     switch (attributeName) {
       case 'width':
       case 'height':
-        this[attributeName] = Number(this.getAttribute(attributeName))
+      this[attributeName] = Number(value)
         break
       case 'style':
-        var rect = this.getBoundingClientRect()
-        this.width = rect.width
-        this.height = rect.height
+        var parseStyle = function(styleAtt) {
+          if (styleAtt && styleAtt.indexOf('px')) {
+            return Number(styleAtt.replace('px', ''))
+          }
+        }
+        this.width = parseStyle(this.style.width)
+        this.height = parseStyle(this.style.height)
         break
       case 'src':
         this.src = this.getAttribute('src')
@@ -69,7 +97,7 @@ namespace videomock {
       case 'autoplay':
       case 'preload':
       case 'loop':
-        this[attributeName] = Boolean(this.getAttribute(attributeName))
+        this[attributeName] = Boolean(value)
         break
     }
   }
