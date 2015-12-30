@@ -44,6 +44,7 @@ namespace videomock {
         '_set_height',
         '_set_autoplay',
         '_set_preload',
+        '_set_volume',
       ]
 
       methods.forEach((item): void => {
@@ -66,6 +67,7 @@ namespace videomock {
         this._startPlaybackTimer()
       } else if (this._paused) {
         this._paused = false
+        this._dispatchEvent(event.MediaEvent.play)
         this._dispatchEvent(event.MediaEvent.playing)
       }
     }
@@ -206,6 +208,11 @@ namespace videomock {
       if (this._preload || this._autoplay) {
         this.load()
       }
+    }
+
+    public _set_volume(value: number): void {
+      this._volume = value
+      this._dispatchEvent(event.MediaEvent.volumechange)
     }
 
     public _set_autoplay(value: boolean): void {
