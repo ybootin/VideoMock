@@ -5,86 +5,47 @@ namespace videomock.dom {
    * Abstract HTMLVideoElement implementation.
    *
    * @see http://dev.w3.org/html5/spec-preview/the-video-element.html#the-video-element
-   *
-   * Used to implement HTMLVideoElement on any HTMLElement
-   *
-   * USAGE :
-   *    var Custom = Object.create(HTMLDivElement.prototype)
-   *    Custom.createdCallback = function() {
-   *      videomock.VideoElement.call(this)
-   *    }
-   *    videomock.VideoElement.implement(Custom)
-   *
-   *    var HTMLCustomElement = document.registerElement('video-mock', {
-   *      prototype: Custom,
-   *      extends: 'div'
-   *    })
-   *
    */
-  export abstract class VideoElement extends MediaElement {
-    protected _poster: string;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _videoHeight: number = 0;
-    protected _videoWidth: number = 0;
+  export var VideoElement = function() {
+    // super
+    MediaElement.call(this)
 
-    static implement(classObject: Function): void {
-      // super implementation
-      MediaElement.implement(classObject)
+    // init properties
+    this._poster;
+    this._width = 0;
+    this._height = 0;
+    this._videoHeight = 0;
+    this._videoWidth = 0;
+  }
 
-      var properties = {
-        'poster': [true, true],
-        'width': [true, true],
-        'height': [true, true],
-        'videoHeight': [true, false],
-        'videoWidth': [true, false],
-      }
+  VideoElement.prototype = MediaElement.prototype
 
-      for (var prop in properties) {
-        helper.ObjectHelper.genGetterSetter(classObject, prop, properties[prop][0], properties[prop][1])
-      }
+  var properties = {
+    'poster': [true, true],
+    'width': [true, true],
+    'height': [true, true],
+    'videoHeight': [true, false],
+    'videoWidth': [true, false],
+  }
 
-      // overriden prototype methods
-      var methods = [
-        'getVideoPlaybackQuality',
-        'webkitEnterFullScreen',
-        'webkitEnterFullscreen',
-        'webkitExitFullScreen',
-        'webkitExitFullscreen',
-      ]
+  for (var prop in properties) {
+    helper.ObjectHelper.genGetterSetter(VideoElement, prop, properties[prop][0], properties[prop][1])
+  }
 
-      methods.forEach((item): void => {
-        classObject.prototype[item] = VideoElement.prototype[item]
-      })
-    }
+  // HTMLVideoElement method
+  VideoElement.prototype.getVideoPlaybackQuality = function(): VideoPlaybackQuality {
+    return <VideoPlaybackQuality><any>{}
+  }
 
-    /**
-     * The HTMLVideoElement.getVideoPlaybackQuality() creates and returns a VideoPlaybackQuality object containing metrics about the current quality of the video restitution.
-     */
-    public getVideoPlaybackQuality(): VideoPlaybackQuality {
-      throw 'not implemented'
-    }
+  // To be overidden
+  VideoElement.prototype.webkitEnterFullscreen = function(): void {}
+  VideoElement.prototype.webkitExitFullscreen = function(): void {}
 
-    /**
-     * activate the video fullscreen mode
-     */
-    public webkitEnterFullScreen(): void {
-      this.webkitEnterFullscreen()
-    }
 
-    /**
-     * exit the video fullscreen mode
-     */
-    public webkitEnterFullscreen(): void {
-      throw 'not implemented'
-    }
-
-    public webkitExitFullScreen(): void {
-      this.webkitExitFullscreen()
-    }
-
-    public webkitExitFullscreen(): void {
-      throw 'not implemented'
-    }
+  VideoElement.prototype.webkitEnterFullScreen = function(): void {
+    this.webkitEnterFullscreen()
+  }
+  VideoElement.prototype.webkitExitFullScreen = function(): void {
+    this.webkitExitFullscreen()
   }
 }

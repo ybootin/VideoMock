@@ -7,25 +7,30 @@ interface Document {
 }
 
 namespace videomock {
-  var custom = Object.create(HTMLDivElement.prototype)
+  var CustomImpl = function() {
+    VideoMock.call(this)
+  }
+
+  CustomImpl.prototype = VideoMock.prototype
 
   var ui: videomock.ui.VideoMockUI
 
-  custom.createdCallback = function() {
+  // Webcomponents callbacks
+  CustomImpl.prototype.createdCallback = function() {
     // Construct, super call
-    VideoMock.call(this)
+    CustomImpl.call(this)
 
     // Init UI
     ui = new videomock.ui.VideoMockUI(this)
   }
 
-  custom.attachedCallback = function(): void {
+  CustomImpl.prototype.attachedCallback = function(): void {
     // Use default size if unspecified
     if (!this.width) {
       this.width = constant.Common.DEFAULT_VIDEOWIDTH
     }
     if (!this.height) {
-    this.height = constant.Common.DEFAULT_VIDEOHEIGHT
+      this.height = constant.Common.DEFAULT_VIDEOHEIGHT
     }
 
     // DOM initialisation inline attributes
@@ -40,9 +45,7 @@ namespace videomock {
     ]
 
     checkAttributes.forEach((att: string): void => {
-      //if (this.hasAttribute(att)) {
-        this.attributeChangedCallback(att)
-      //}
+      this.attributeChangedCallback(att)
     })
 
     // dirty fix
@@ -68,11 +71,11 @@ namespace videomock {
     this.appendChild(ui.getContainer())
   }
 
-  custom.detachedCallback = function(): void {
+  CustomImpl.prototype.detachedCallback = function(): void {
     this.removeChild(ui.getContainer())
   }
 
-  custom.attributeChangedCallback = function(attributeName: string): void {
+  CustomImpl.prototype.attributeChangedCallback = function(attributeName: string): void {
     if (!this.hasAttribute(attributeName)) {
       return
     }
@@ -103,11 +106,9 @@ namespace videomock {
   }
 
   export var HTMLVideoMock = document.registerElement('video-mock', {
-    prototype: custom,
+    prototype: CustomImpl.prototype,
     extends: 'div'
   })
 
-  // Implements
-  VideoMock.implement(HTMLVideoMock)
-
+  HTMLVideoMock.prototype.addEventListener = VideoMock.prototype.addEventListener
 }
