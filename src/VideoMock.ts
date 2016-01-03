@@ -129,11 +129,11 @@ namespace videomock {
      * This setters will be called when access to .width attribute
      */
   VideoMock.prototype._set_width = function(value: number): void {
-      this._width = value
+      this._width = (typeof value !== 'undefined' && value !== null && !isNaN(value)) ? value : constant.Common.DEFAULT_VIDEOWIDTH
       this._updateDimensions()
   }
   VideoMock.prototype._set_height = function(value: number): void {
-      this._height = value
+      this._height = (typeof value !== 'undefined' && value !== null && !isNaN(value)) ? value : constant.Common.DEFAULT_VIDEOHEIGHT
       this._updateDimensions()
     }
 
@@ -157,23 +157,23 @@ namespace videomock {
   }
 
   VideoMock.prototype._updateDimensions = function(): void {
-      // calculate base video size !
-      var videoRatio: number = this._sourceData.width / this._sourceData.height
-      var requestRatio: number = this._width / this._height
+    // calculate base video size !
+    var videoRatio: number = this._sourceData.width / this._sourceData.height
+    var requestRatio: number = this._width / this._height
 
-      // pillarbox video
-      if (requestRatio > videoRatio) {
-        this._videoHeight = this._height
-        this._videoWidth = this._height * videoRatio
-      } else { // letterbox video
-        this._videoWidth = this._width
-        this._videoHeight = this._width / videoRatio
-      }
+    // pillarbox video
+    if (requestRatio > videoRatio) {
+      this._videoHeight = this._height
+      this._videoWidth = this._height * videoRatio
+    } else { // letterbox video
+      this._videoWidth = this._width
+      this._videoHeight = this._width / videoRatio
     }
+  }
 
-    /**
-     * Override src setter
-     */
+  /**
+   * Override src setter
+   */
   VideoMock.prototype._set_src = function(value: string): void {
     if(this._src === value || this._currentSrc === value) {
       return
@@ -184,6 +184,7 @@ namespace videomock {
     this._hasLoadStarted = false
 
     this._sourceData = VideoMockURL.parse(value)
+    this._updateDimensions()
 
     if (this._preload || this._autoplay) {
       this.load()

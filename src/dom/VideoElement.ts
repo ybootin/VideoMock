@@ -12,8 +12,8 @@ namespace videomock.dom {
 
     // init properties
     this._poster;
-    this._width = 0;
-    this._height = 0;
+    this._width = constant.Common.DEFAULT_VIDEOWIDTH;
+    this._height = constant.Common.DEFAULT_VIDEOHEIGHT;
     this._videoHeight = 0;
     this._videoWidth = 0;
   }

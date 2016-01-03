@@ -1,38 +1,24 @@
 /// <reference path="VideoMock.ts" />
 /// <reference path="ui/VideoMockUI.ts" />
 /// <reference path="helper/ObjectHelper.ts" />
-
-interface Document {
-  registerElement: any
-}
+/// <reference path="model/Document.ts" />
 
 namespace videomock {
   var CustomImpl = function() {
     VideoMock.call(this)
+
+    this._ui = new videomock.ui.VideoMockUI(this)
   }
 
   CustomImpl.prototype = VideoMock.prototype
-
-  var ui: videomock.ui.VideoMockUI
 
   // Webcomponents callbacks
   CustomImpl.prototype.createdCallback = function() {
     // Construct, super call
     CustomImpl.call(this)
-
-    // Init UI
-    ui = new videomock.ui.VideoMockUI(this)
   }
 
   CustomImpl.prototype.attachedCallback = function(): void {
-    // Use default size if unspecified
-    if (!this.width) {
-      this.width = constant.Common.DEFAULT_VIDEOWIDTH
-    }
-    if (!this.height) {
-      this.height = constant.Common.DEFAULT_VIDEOHEIGHT
-    }
-
     // DOM initialisation inline attributes
     var checkAttributes = [
       'style',
@@ -45,54 +31,50 @@ namespace videomock {
     ]
 
     checkAttributes.forEach((att: string): void => {
-      this.attributeChangedCallback(att)
+      if (this.hasAttribute(att)) {
+        this.attributeChangedCallback(att)
+      }
     })
 
-    // dirty fix
-     setInterval(() =>  {
-       if (!this.style) {
-         return
-       }
-       var parseStyle = function(styleAtt) {
-         if (styleAtt && styleAtt.indexOf('px')) {
-           return Number(styleAtt.replace('px', ''))
-         }
-       }
-       var width = parseStyle(this.style.width)
-       var height = parseStyle(this.style.height)
-       if (width) {
-         this.width = width
-       }
-       if (height) {
-         this.height = height
-       }
-     }, 10)
+    var observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'style') {
+          this.attributeChangedCallback('style')
+        }
+      })
+    })
 
-    this.appendChild(ui.getContainer())
+    var config = { attributes: true, childList: true, characterData: true };
+
+    observer.observe(this, config);
+
+    this.appendChild(this._ui.getContainer())
   }
 
   CustomImpl.prototype.detachedCallback = function(): void {
-    this.removeChild(ui.getContainer())
+    this.removeChild(this._ui.getContainer())
   }
 
+
   CustomImpl.prototype.attributeChangedCallback = function(attributeName: string): void {
-    if (!this.hasAttribute(attributeName)) {
-      return
-    }
     var value = this.getAttribute(attributeName)
+
     switch (attributeName) {
       case 'width':
       case 'height':
-      this[attributeName] = Number(value)
+        this[attributeName] = Number(value)
         break
       case 'style':
-        var parseStyle = function(styleAtt) {
-          if (styleAtt && styleAtt.indexOf('px')) {
-            return Number(styleAtt.replace('px', ''))
-          }
+        let computed = window.getComputedStyle(this)
+        let width: number = Number(computed.getPropertyValue('width').replace('px', ''))
+        let height: number = Number(computed.getPropertyValue('height').replace('px', ''))
+
+        if (width !== this.width) {
+          this.width = width
         }
-        this.width = parseStyle(this.style.width)
-        this.height = parseStyle(this.style.height)
+        if (height !== this.height) {
+          this.height = height
+        }
         break
       case 'src':
         this.src = this.getAttribute('src')
@@ -103,6 +85,8 @@ namespace videomock {
         this[attributeName] = Boolean(value)
         break
     }
+
+    this._ui.updateDisplay()
   }
 
   export var HTMLVideoMock = document.registerElement('video-mock', {
@@ -110,5 +94,6 @@ namespace videomock {
     extends: 'div'
   })
 
+  // Must redefine HTMLElement overrided prototype, because document.registerElement will re-override them !
   HTMLVideoMock.prototype.addEventListener = VideoMock.prototype.addEventListener
 }
