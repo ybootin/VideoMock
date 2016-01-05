@@ -1,6 +1,6 @@
 {
   "name": "VideoMock",
-  "description": "Provide video element for headless server like phantomjs. Usefull for headless Unit Test",
+  "description": "A mock of the HTML5 Video element for testing",
   "repository": "git@github.com/ybootin/VideoMock.git",
   "version": "0.0.1",
   "dependencies": {},
@@ -11,12 +11,17 @@
     "README.md"
   ],
   "devDependencies": {
-    "uglify-js": "2.4.24"
+    "uglify-js": "2.4.24",
+    "typescript": "1.7.5",
+    "http-server": "0.8.5",
+    "watch": "0.17.1"
   },
   "scripts" : {
     "prepublish": "npm run build",
-    "build": "tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
-    "dev": "npm run build && http-server -c-1 --cors",
+    "build": "node_modules/typescript/bin/tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
+    "watch": "node_modules/watch/cli.js 'npm run build' src/",
+    "server": "node_modules/http-server/bin/http-server -c-1 --cors",
+    "dev": "npm run build && npm run server",
     "uglify": "node_modules/uglify-js/bin/uglifyjs -o dist/videomock.min.js dist/videomock.js"
   }
 }
