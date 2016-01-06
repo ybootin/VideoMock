@@ -1,3 +1,3 @@
-interface Document {
+export interface Document {
 	registerElement: any
 }

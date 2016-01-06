@@ -1,4 +1,4 @@
-/// <reference path="model/ISourceData.ts" />
+/// <reference path="./model/ISourceData.ts" />
 
 namespace videomock {
   /**

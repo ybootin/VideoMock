@@ -3,7 +3,11 @@
   "description": "A mock of the HTML5 Video element for testing",
   "repository": "git@github.com/ybootin/VideoMock.git",
   "version": "0.0.1",
-  "dependencies": {},
+  "dependencies": {
+    "customevent-polyfill": "git@github.com:d4tocchini/customevent-polyfill.git#master",
+    "document-register-element": "git://github.com/WebReflection/document-register-element.git#master",
+    "webcomponents.js": "^0.7.20"
+  },
   "files": [
     "dist",
     "src",
@@ -11,17 +15,23 @@
     "README.md"
   ],
   "devDependencies": {
-    "uglify-js": "2.4.24",
-    "typescript": "1.7.5",
     "http-server": "0.8.5",
+    "karma": "^0.13.18",
+    "karma-jasmine": "^0.3.6",
+    "karma-phantomjs-launcher": "^0.2.3",
+    "karma-typescript-preprocessor": "0.0.21",
+    "phantomjs": "^1.9.19",
+    "typescript": "1.7.5",
+    "uglify-js": "2.4.24",
     "watch": "0.17.1"
   },
-  "scripts" : {
+  "scripts": {
     "prepublish": "npm run build",
     "build": "node_modules/typescript/bin/tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
     "watch": "node_modules/watch/cli.js 'npm run build' src/",
-    "server": "node_modules/http-server/bin/http-server -c-1 --cors",
+    "sample": "node_modules/http-server/bin/http-server -c-1 --cors",
     "dev": "npm run build && npm run server",
-    "uglify": "node_modules/uglify-js/bin/uglifyjs -o dist/videomock.min.js dist/videomock.js"
+    "uglify": "node_modules/uglify-js/bin/uglifyjs -o dist/videomock.min.js dist/videomock.js",
+    "test": "npm run build && node_modules/karma/bin/karma start"
   }
 }

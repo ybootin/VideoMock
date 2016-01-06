@@ -1,4 +1,5 @@
 /// <reference path="../helper/HTMLHelper.ts" />
+/// <reference path="../event/MediaEvent.ts" />
 
 namespace videomock.ui {
   /**

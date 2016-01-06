@@ -1,7 +1,10 @@
 /// <reference path="VideoMock.ts" />
 /// <reference path="ui/VideoMockUI.ts" />
 /// <reference path="helper/ObjectHelper.ts" />
-/// <reference path="model/Document.ts" />
+
+interface Document {
+  registerElement: any
+}
 
 namespace videomock {
   var CustomImpl = function() {
@@ -89,7 +92,7 @@ namespace videomock {
     this._ui.updateDisplay()
   }
 
-  export var HTMLVideoMock = document.registerElement('video-mock', {
+  export var HTMLVideoMock = document.registerElement('video-mocked', {
     prototype: CustomImpl.prototype,
     extends: 'div'
   })

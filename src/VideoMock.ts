@@ -4,6 +4,7 @@
 /// <reference path="model/ISourceData.ts" />
 /// <reference path="VideoMockURL.ts" />
 /// <reference path="event/MediaEvent.ts" />
+/// <reference path="polyfill/ProgressEvent.ts" />
 
 namespace videomock {
   /**

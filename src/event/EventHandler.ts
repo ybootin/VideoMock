@@ -27,8 +27,12 @@ namespace videomock.event {
     }
 
     public handleEvent(evt: Event): void {
-      var listeners: Array<EventListener> = this.listeners[evt.type] || []
-
+      try {
+        var listeners: Array<EventListener> = this.listeners[evt.type] || []
+      } catch(e) {
+        console.log('handleEvent failled', evt)
+        return
+      }
       // exec listeners per event
       for (var i = 0, l = listeners.length; i < l ; i++) {
         try {
