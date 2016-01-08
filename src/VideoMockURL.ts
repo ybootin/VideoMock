@@ -9,7 +9,10 @@ namespace videomock {
     static DEFAULT: model.ISourceData = {
       'width': 640,
       'height': 360,
-      'duration': 30
+      'duration': 30,
+      'fileSize': 3000, // 3Mb
+      'bandwidth': 1000, // 1mb/sec
+      'fps': 24, // 24 frames per seconds
     }
 
     static parse(src: string): model.ISourceData {

@@ -2,8 +2,11 @@
 describe('HTMLVideoMock', function() {
   var video;
 
-  it('Should instanciate', function() {
+  beforeEach(function() {
     video = new videomock.HTMLVideoMock()
+    video.src = videomock.VideoMockURL.gen({
+      'duration': 1
+    })
   });
 
   it('Should append to DOM as an HTMLDivElement', function() {
@@ -14,9 +17,7 @@ describe('HTMLVideoMock', function() {
     video.addEventListener('play', function() {
       done()
     })
-    video.src = videomock.VideoMockURL.gen({
-      'duration': 2
-    })
+
     video.play()
   })
 
@@ -24,17 +25,21 @@ describe('HTMLVideoMock', function() {
     video.addEventListener('progress', function() {
       done()
     })
+
+    video.load()
   })
 
   it('Should timeupdate', function(done) {
     video.addEventListener('timeupdate', function() {
       done()
     })
+    video.play()
   })
 
   it('Should end', function(done) {
     video.addEventListener('ended', function() {
       done()
     })
+    video.play()
   })
 })
