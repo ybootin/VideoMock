@@ -5,7 +5,7 @@ describe('HTMLVideoMock', function() {
   beforeEach(function() {
     video = new videomock.HTMLVideoMock()
     video.src = videomock.VideoMockURL.gen({
-      'duration': 1
+      'duration': 2
     })
   });
 
@@ -19,6 +19,38 @@ describe('HTMLVideoMock', function() {
     })
 
     video.play()
+  })
+
+  it('Should handle autoplay attribute', function(done) {
+    video.addEventListener('play', function() {
+      done()
+    })
+
+    video.autoplay = true
+  })
+
+  it('Should have metadata', function(done) {
+    video.addEventListener('loadedmetadata', function() {
+      done()
+    })
+
+    video.load()
+  })
+
+  it('Should have first frame loaded', function(done) {
+    video.addEventListener('loadeddata', function() {
+      done()
+    })
+
+    video.load()
+  })
+
+  it('Should handle preload attribute', function(done) {
+    video.addEventListener('loadeddata', function() {
+      done()
+    })
+
+    video.preload
   })
 
   it('Should load progress', function(done) {

@@ -9,9 +9,9 @@ namespace videomock {
     static DEFAULT: model.ISourceData = {
       'width': 640,
       'height': 360,
-      'duration': 30,
-      'fileSize': 3000, // 3Mb
-      'bandwidth': 1000, // 1mb/sec
+      'duration': 10,
+      'fileSize': 1000, // 1Mb
+      'bandwidth': 100000, // 100 mb/sec, be sure to have by default a big bandwidth to avoid loading
       'fps': 24, // 24 frames per seconds
     }
 

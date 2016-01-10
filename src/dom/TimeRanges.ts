@@ -1,6 +1,6 @@
 namespace videomock.dom {
   interface ITimeRange {
-    start: number 
+    start: number
     end: number
   }
 
@@ -8,7 +8,10 @@ namespace videomock.dom {
    * TimeRanges Object implementation
    */
   export class TimeRanges {
-    private ranges: Array<ITimeRange> = [];
+    /**
+     * Need public scope to be setted manually during progress
+     */
+    public ranges: Array<ITimeRange> = [];
 
     get length(): number {
       return this.ranges.length

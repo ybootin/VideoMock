@@ -1,5 +1,7 @@
 /// <reference path="../helper/HTMLHelper.ts" />
 /// <reference path="../event/MediaEvent.ts" />
+/// <reference path="../dom/MediaElement.ts" />
+/// <reference path="../model/IVideoMock.ts" />
 
 namespace videomock.ui {
   /**
@@ -10,9 +12,14 @@ namespace videomock.ui {
     private videoContainer: HTMLDivElement;
     private contentContainer: HTMLDivElement;
     private progressBar: HTMLDivElement;
+    private percentLoaded: number
     private status: string = 'unstarted';
 
-    constructor(private video: HTMLVideoElement) {
+    constructor(private video: model.IVideoMock) {
+      video.addEventListener(event.MediaEvent.progress, (evt: Event) => {
+        this.percentLoaded = video.buffered.end(video.buffered.length - 1) / video.duration
+        this.updateDisplay()
+      })
       video.addEventListener(event.MediaEvent.timeupdate, () => this.updateDisplay())
       video.addEventListener(event.MediaEvent.loadstart, () => this.updateDisplay())
       video.addEventListener(event.MediaEvent.progress, () => this.updateDisplay())
@@ -21,6 +28,8 @@ namespace videomock.ui {
       video.addEventListener(event.MediaEvent.pause, () => this.onPaused())
       video.addEventListener(event.MediaEvent.playing, () => this.onPlay())
       video.addEventListener(event.MediaEvent.play, () => this.onPlay())
+
+      video.addEventListener(event.MediaEvent.waiting, () => this.onWaiting())
 
       // main container, black background will provide letterbox/pillarbox
       this.mainContainer = <HTMLDivElement>document.createElement('div')
@@ -91,11 +100,17 @@ namespace videomock.ui {
       var content = '<h3>VideoMock info</h3>' +
         'URL: ' + this.video.src +
         '<br/>Size: ' + this.video.width + 'x' + this.video.height + ' (video : ' + Math.round(this.video.videoWidth) + 'x' + Math.round(this.video.videoHeight) + ')' +
-        '<br/>Progress: ' + Math.round(this.video.currentTime) + '/' + this.video.duration + 's (' + Math.round(percentPlayed) + '%)' +
+        '<br/>Load : ' + Math.round(this.percentLoaded * this.video._sourceData.fileSize) + '/' + this.video._sourceData.fileSize + 'Ko (' + (Math.round(this.percentLoaded * 100)) + '%), bandwidth : ' + this.video._sourceData.bandwidth + 'kbps' +
+        '<br/>Playback: ' + Math.round(this.video.currentTime) + '/' + this.video.duration + 's (' + Math.round(percentPlayed) + '%)' +
         '<br/>Volume: ' + this.video.volume +
         '<br/>Status: ' + this.status
 
       this.contentContainer.innerHTML = content
+    }
+
+    private onWaiting(): void {
+      this.status = 'buffering'
+      this.updateDisplay()
     }
 
     private onPaused(): void {

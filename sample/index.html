@@ -13,8 +13,9 @@
     <div id="video-container"></div>
     <div id="video-constrols">
       <div>
-        <input type="button" value="pause()" onclick="video.pause()" /> &nbsp;
+        <input type="button" value="load()" onclick="video.load()" /> &nbsp;
         <input type="button" value="play()" onclick="video.play()" /> &nbsp;
+        <input type="button" value="pause()" onclick="video.pause()" /> &nbsp;
         <input type="button" value="mute" onclick="video.volume=0" /> &nbsp;
         <input type="button" value="unmute" onclick="video.volume=1" /> &nbsp;
       </div>
@@ -41,6 +42,9 @@
         'width': 640,
         'height': 360,
         'duration': 60,
+        'bandwidth': 100,
+        'fps': 60,
+        'fileSize': 6000,
       });
 
       // register all Media events
@@ -54,13 +58,13 @@
       // video.style.width = '400px'
       // video.style.height = '250px'
 
-      video.play();
+      // video.play();
 
       // add to DOM
       document.getElementById('video-container').appendChild(video)
     </script>
     <hr>
     <h2>HTML tag implementation</h2>
-    <div is="video-mocked" src="http://will-use-default" preload="true" autoplay="true" loop="true" style="width:400px;height:250px;z-index:10"></div>
+    <!--<div is="video-mocked" src="http://will-use-default" preload="true" autoplay="true" loop="true" style="width:400px;height:250px;z-index:10"></div>-->
   </body>
 </html>

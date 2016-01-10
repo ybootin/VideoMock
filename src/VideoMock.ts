@@ -2,6 +2,7 @@
 /// <reference path="dom/VideoElement.ts" />
 /// <reference path="ui/VideoMockUI.ts" />
 /// <reference path="model/ISourceData.ts" />
+/// <reference path="model/IVideoMock.ts" />
 /// <reference path="VideoMockURL.ts" />
 /// <reference path="event/MediaEvent.ts" />
 /// <reference path="polyfill/ProgressEvent.ts" />
@@ -16,15 +17,8 @@ namespace videomock {
    *
    * keep NON HTMLVideoElement attributes/methods start with _, even if they are  public scope to prevent extends conflict
    */
-  // Must type constructor to define static properties
-  interface IVideoMock {
-    new (): HTMLVideoElement
-    (): void
-    PLAYBACK_TIMER_RATE: number
-    PROGRESS_TIMER_RATE: number
-  }
 
-  export var VideoMock = <IVideoMock>function() {
+  export var VideoMock = <model.IVideoMock>function() {
     // super
     dom.VideoElement.call(this)
 
@@ -33,7 +27,12 @@ namespace videomock {
     this._hasStarted;
     this._hasLoadStarted;
     this._bytesLoaded = 0;
-    this._bytesTotal;
+    this._bytesTotal = 0;
+
+    this._isBuffering = false
+    this._bufferCount = 0
+
+    this._playInvoked = false
 
     this._sourceData = videomock.VideoMockURL.DEFAULT;
   }
@@ -42,16 +41,18 @@ namespace videomock {
   VideoMock.prototype = Object.create(dom.VideoElement.prototype)
 
   // The setInterval delay for playback and progress timer
-  VideoMock.PLAYBACK_TIMER_RATE = 100
-  VideoMock.PROGRESS_TIMER_RATE = 100
+  VideoMock.PLAYBACK_TIMER_RATE = 250
+  VideoMock.PROGRESS_TIMER_RATE = 250
+  VideoMock.BUFFERSIZE = 1
 
   VideoMock.prototype.play = function(): void {
     // trigger load + autoplay
     if (!this._hasLoadStarted) {
-      return this.load(true)
+      this._playInvoked = true
+      return this.load()
     }
 
-    if (!this._hasStarted) {
+    if (!this._hasStarted && !this._playInvoked) {
       this._hasStarted = true
       this._dispatchEvent(event.MediaEvent.play)
       this._dispatchEvent(event.MediaEvent.playing)
@@ -60,6 +61,9 @@ namespace videomock {
       this._startPlaybackTimer()
     } else if (this._paused) {
       this._paused = false
+      // https://developer.mozilla.org/en-US/docs/Web/Events/playing
+      // https://html.spec.whatwg.org/multipage/embedded-content.html#event-media-play
+      // this is ambiguous, better dispatch both event, playing seems to be a FF event
       this._dispatchEvent(event.MediaEvent.play)
       this._dispatchEvent(event.MediaEvent.playing)
     }
@@ -72,7 +76,7 @@ namespace videomock {
     }
   }
 
-  VideoMock.prototype.load = function(autoplay ?: boolean): void {
+  VideoMock.prototype.load = function(): void {
     if (this._hasLoadStarted || !this._src) {
       return
     }
@@ -87,32 +91,44 @@ namespace videomock {
     this._dispatchEvent(event.MediaEvent.loadstart)
 
     var intervalId: number
-    var prevLoaded = 0
-    var metadataSize = 10 // needed kb download to trigger loadedmetadata event
-    var fps = 24
+    var metadataSize = 10 * constant.Common.KB_UNIT // needed bytes download to trigger loadedmetadata event
 
     this._bytesTotal = this._sourceData.fileSize * constant.Common.KB_UNIT
 
     intervalId = setInterval((): void => {
+      let addedBytes: number
       if (this._bytesLoaded < this._bytesTotal) {
-        prevLoaded = this._bytesLoaded
-        this._bytesLoaded += (VideoMock.PROGRESS_TIMER_RATE / 1000) * this._sourceData.bandwidth * constant.Common.KB_UNIT
+        addedBytes = (VideoMock.PROGRESS_TIMER_RATE / 1000) * this._sourceData.bandwidth * constant.Common.KB_UNIT
+
+        if ((this._bytesLoaded + addedBytes) >= this._bytesTotal) {
+          addedBytes = this._bytesTotal - this._bytesLoaded
+
+          this._bytesLoaded = this._bytesTotal
+
+          this._networkState = dom.MediaElement.NETWORK_IDLE
+
+          clearInterval(intervalId)
+        } else {
+          this._bytesLoaded += addedBytes
+        }
       }
 
       // Load is ended
-      if (this._bytesLoaded === this._bytesTotal || this._bytesLoaded >= this._bytesTotal) {
-        this._networkState = dom.MediaElement.NETWORK_IDLE
+      if (this._bytesLoaded === this._bytesTotal) {
 
-        clearInterval(intervalId)
       }
 
-      // add a buffered timeRange
-      this._buffered.addRange(prevLoaded, this._bytesLoaded)
+      // Handle Time range
+      var loadedSeconds = addedBytes / this._bps
+      if (this._buffered.length === 0) {
+        this._buffered.addRange(0, loadedSeconds)
+      } else {
+        this._buffered.ranges[0].end += loadedSeconds
+      }
 
-      let blkb = this._bytesLoaded / constant.Common.KB_UNIT
 
        // http://www.w3.org/TR/2012/WD-html5-20121025/media-elements.html#dom-media-have_nothing
-      if (blkb > metadataSize && this._readyState === dom.MediaElement.HAVE_NOTHING) {
+      if (this._bytesLoaded > metadataSize && this._readyState === dom.MediaElement.HAVE_NOTHING) {
         this._networkState = dom.MediaElement.NETWORK_LOADING
         this._setMetadataLoaded()
       }
@@ -124,17 +140,24 @@ namespace videomock {
         }
 
         // next frame
-        let futureData = (this._currentTime + (1 / fps)) * this._bps
+        let futureData = (this._currentTime + (1 / this._sourceData.fps)) * this._bps
         if (this._bytesLoaded >= futureData) {
           this._readyState = dom.MediaElement.HAVE_FUTURE_DATA
         }
 
         // consider we have enough data to play 1 seconds
-        let enoughData = (this._currentTime + 1) * this._bps
+        // to avoid over buferring, we had buffertime each time it buffer
+        let enoughDataBuffer: number = 1 //+ (this._bufferCount > 0 ? this._bufferCount / 5 : 0)
+        if (this._currentTime + enoughDataBuffer >= this._duration) {
+          enoughDataBuffer = this._duration - this._currentTime
+        }
+
+        let enoughData = (this._currentTime + enoughDataBuffer) * this._bps
         if (this._bytesLoaded >= enoughData) {
           this._readyState = dom.MediaElement.HAVE_ENOUGH_DATA
 
-          if (this._autoplay || autoplay) {
+          if (this._autoplay || this._playInvoked) {
+            this._playInvoked = false
             this.play()
           }
         }
@@ -261,20 +284,34 @@ namespace videomock {
   VideoMock.prototype._startPlaybackTimer = function(): void {
     if (!this._playbackTimerId) {
       this._playbackTimerId = setInterval((): void => {
-
         if (!this._paused) {
-          // doesn't have enough data to continue
-          if (this._readyState < dom.MediaElement.HAVE_FUTURE_DATA) {
-            this._dispatchEvent(event.MediaEvent.waiting)
+          // do this check at future data, to avoid play/pause constinously
+          // buffering will start when don't have future data, and will end when have enough data
+          if (this._readyState <= dom.MediaElement.HAVE_FUTURE_DATA) {
+            // init buffering sequence
+            if (!this._isBuffering) {
+              this._isBuffering = true
+              this._bufferCount++
+              this._dispatchEvent(event.MediaEvent.waiting)
+            }
             return
+          } else if (this._isBuffering) {
+            this._isBuffering = false
+            // will indicate playback have start again after buferring
+            // @TODO need specifications details
+            this._dispatchEvent(event.MediaEvent.play)
+            this._dispatchEvent(event.MediaEvent.playing)
           }
 
-          this._currentTime = this._currentTime + (VideoMock.PLAYBACK_TIMER_RATE / 1000)
-          if (this._currentTime >= this._duration) {
+          let nextTime: number = (VideoMock.PLAYBACK_TIMER_RATE / 1000)
+          if ((this._currentTime + nextTime) >= this._duration) {
             this._currentTime = this._duration
+            // dispatch a final timeupdate before ended to be sure the listener are call almost once on very small video size
+            this._dispatchEvent(event.MediaEvent.timeupdate)
             this._dispatchEvent(event.MediaEvent.ended)
             this._stopPlaybackTimer()
           } else {
+            this._currentTime += nextTime
             this._dispatchEvent(event.MediaEvent.timeupdate)
           }
         }
@@ -288,6 +325,9 @@ namespace videomock {
     }
   }
 
+  /**
+   * need a replay feature for loop option
+   */
   VideoMock.prototype._replay = function(): void {
     this._stopPlaybackTimer()
     this._currentTime = 0
