@@ -33,6 +33,7 @@ namespace videomock {
     this._bufferCount = 0
 
     this._playInvoked = false
+    this._loadeddataDispatched = false
 
     this._sourceData = videomock.VideoMockURL.DEFAULT;
   }
@@ -143,6 +144,11 @@ namespace videomock {
         let futureData = (this._currentTime + (1 / this._sourceData.fps)) * this._bps
         if (this._bytesLoaded >= futureData) {
           this._readyState = dom.MediaElement.HAVE_FUTURE_DATA
+
+          if (!this._loadeddataDispatched) {
+            this._loadeddataDispatched = true
+            this._dispatchEvent(event.MediaEvent.loadeddata)
+          }
         }
 
         // consider we have enough data to play 1 seconds
@@ -236,7 +242,9 @@ namespace videomock {
     // init bitrate
     this._bps = this._sourceData.fileSize * constant.Common.KB_UNIT / this._sourceData.duration
 
-    if (this._preload || this._autoplay) {
+    if (this._autoplay) {
+      this.play()
+    } else if (this._shouldPreload()) {
       this.load()
     }
   }
@@ -265,9 +273,12 @@ namespace videomock {
     }
   }
 
+  VideoMock.prototype._shouldPreload = function(): boolean {
+    return this._preload !== "none" && this._preload !== "metadata"
+  }
+
   VideoMock.prototype._setMetadataLoaded = function(): void {
     if (this._readyState < dom.MediaElement.HAVE_METADATA) {
-      this._dispatchEvent(event.MediaEvent.loadeddata)
 
       // set metadata before dispatch loadedmetadata event
       this._duration = this._sourceData.duration

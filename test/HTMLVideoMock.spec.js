@@ -21,6 +21,28 @@ describe('HTMLVideoMock', function() {
     video.play()
   })
 
+  it('Should not start loading if not preload or load() call', function(done) {
+    video = new videomock.HTMLVideoMock()
+
+    var loaded = false
+    var onload = function() {
+      loaded = true
+    }
+    video.addEventListener('loadeddata', onload)
+    video.addEventListener('progress', onload)
+    video.addEventListener('loadedmetadata', onload)
+
+    setTimeout(function() {
+      if (!loaded) {
+        done()
+      }
+    }, 1000)
+
+    video.src = videomock.VideoMockURL.gen({
+      'duration': 2
+    })
+  })
+
   it('Should handle autoplay attribute', function(done) {
     video.addEventListener('play', function() {
       done()
@@ -50,7 +72,25 @@ describe('HTMLVideoMock', function() {
       done()
     })
 
-    video.preload
+    video.preload = 'auto'
+  })
+
+  it('Should handle preload metadata', function(done) {
+    var metadata = false
+    var loadeddata = false
+    video.addEventListener('loadeddata', function() {
+      loadeddata = true
+    })
+    video.addEventListener('loadedmetadata', function() {
+      metadata = true
+    })
+    setTimeout(function() {
+      if (!loadeddata && metadata) {
+        done()
+      }
+    }, 1000)
+
+    video.preload = 'metadata'
   })
 
   it('Should load progress', function(done) {
