@@ -1,3 +1,14 @@
+/**
+ * HTMLVideoMock unit test
+ *
+ * @todo:
+ *   - test all attributes
+ *   - test all DOM attribute (via setAttribute / getAttribute)
+ *   - test all methods
+ *   - test all events
+ *   - full chain tests (from instanciation to end)
+ */
+
 
 describe('HTMLVideoMock', function() {
   var video;
