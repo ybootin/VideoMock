@@ -60,8 +60,8 @@ namespace videomock {
 
       // And now simulate playback !
       this._startPlaybackTimer()
-    } else if (this._paused) {
-      this._paused = false
+    } else if (this.paused) {
+      this.paused = false
       // https://developer.mozilla.org/en-US/docs/Web/Events/playing
       // https://html.spec.whatwg.org/multipage/embedded-content.html#event-media-play
       // this is ambiguous, better dispatch both event, playing seems to be a FF event
@@ -71,7 +71,7 @@ namespace videomock {
   }
 
   VideoMock.prototype.pause = function(): void {
-    if (!this._paused) {
+    if (!this.paused) {
       this._paused = true
       this._dispatchEvent(event.MediaEvent.pause)
     }
@@ -86,7 +86,7 @@ namespace videomock {
 
     this._hasLoadStarted = true
 
-    this._currentSrc = this._src
+    this._currentSrc = this.src
 
     // as we don't handle video load, we can dispatch events right now !
     this._dispatchEvent(event.MediaEvent.loadstart)
@@ -106,7 +106,7 @@ namespace videomock {
 
           this._bytesLoaded = this._bytesTotal
 
-          this._networkState = dom.MediaElement.NETWORK_IDLE
+          this._networkState = constant.MediaElement.NETWORK_IDLE
 
           clearInterval(intervalId)
         } else {
@@ -129,21 +129,21 @@ namespace videomock {
 
 
        // http://www.w3.org/TR/2012/WD-html5-20121025/media-elements.html#dom-media-have_nothing
-      if (this._bytesLoaded > metadataSize && this._readyState === dom.MediaElement.HAVE_NOTHING) {
-        this._networkState = dom.MediaElement.NETWORK_LOADING
+      if (this._bytesLoaded > metadataSize && this._readyState === constant.MediaElement.HAVE_NOTHING) {
+        this._networkState = constant.MediaElement.NETWORK_LOADING
         this._setMetadataLoaded()
       }
 
-      if (this._readyState >= dom.MediaElement.HAVE_METADATA) {
+      if (this._readyState >= constant.MediaElement.HAVE_METADATA) {
         let currentData = this._currentTime * this._bps
         if (this._bytesLoaded >= currentData) {
-          this._readyState = dom.MediaElement.HAVE_CURRENT_DATA
+          this._readyState = constant.MediaElement.HAVE_CURRENT_DATA
         }
 
         // next frame
         let futureData = (this._currentTime + (1 / this._sourceData.fps)) * this._bps
         if (this._bytesLoaded >= futureData) {
-          this._readyState = dom.MediaElement.HAVE_FUTURE_DATA
+          this._readyState = constant.MediaElement.HAVE_FUTURE_DATA
 
           if (!this._loadeddataDispatched) {
             this._loadeddataDispatched = true
@@ -160,7 +160,7 @@ namespace videomock {
 
         let enoughData = (this._currentTime + enoughDataBuffer) * this._bps
         if (this._bytesLoaded >= enoughData) {
-          this._readyState = dom.MediaElement.HAVE_ENOUGH_DATA
+          this._readyState = constant.MediaElement.HAVE_ENOUGH_DATA
 
           if (this._autoplay || this._playInvoked) {
             this._playInvoked = false
@@ -202,7 +202,7 @@ namespace videomock {
     switch (evt.type) {
       case event.MediaEvent.ended:
         this._stopPlaybackTimer()
-        if (this._loop) {
+        if (this.loop) {
           this._replay()
         }
         break
@@ -212,15 +212,15 @@ namespace videomock {
   VideoMock.prototype._updateDimensions = function(): void {
     // calculate base video size !
     var videoRatio: number = this._sourceData.width / this._sourceData.height
-    var requestRatio: number = this._width / this._height
+    var requestRatio: number = this.width / this.height
 
     // pillarbox video
     if (requestRatio > videoRatio) {
-      this._videoHeight = this._height
-      this._videoWidth = this._height * videoRatio
+      this._videoHeight = this.height
+      this._videoWidth = this.height * videoRatio
     } else { // letterbox video
-      this._videoWidth = this._width
-      this._videoHeight = this._width / videoRatio
+      this._videoWidth = this.width
+      this._videoHeight = this.width / videoRatio
     }
   }
 
@@ -228,7 +228,7 @@ namespace videomock {
    * Override src setter
    */
   VideoMock.prototype._set_src = function(value: string): void {
-    if(this._src === value || this._currentSrc === value) {
+    if(this.src === value || this.currentSrc === value) {
       return
     }
 
@@ -274,11 +274,11 @@ namespace videomock {
   }
 
   VideoMock.prototype._shouldPreload = function(): boolean {
-    return this._preload !== "none" && this._preload !== "metadata"
+    return this.preload !== "none" && this.preload !== "metadata"
   }
 
   VideoMock.prototype._setMetadataLoaded = function(): void {
-    if (this._readyState < dom.MediaElement.HAVE_METADATA) {
+    if (this._readyState < constant.MediaElement.HAVE_METADATA) {
 
       // set metadata before dispatch loadedmetadata event
       this._duration = this._sourceData.duration
@@ -288,17 +288,17 @@ namespace videomock {
       this._dispatchEvent(event.MediaEvent.canplay)
       this._dispatchEvent(event.MediaEvent.canplaythrough)
 
-      this._readyState = dom.MediaElement.HAVE_METADATA
+      this._readyState = constant.MediaElement.HAVE_METADATA
     }
   }
 
   VideoMock.prototype._startPlaybackTimer = function(): void {
     if (!this._playbackTimerId) {
       this._playbackTimerId = setInterval((): void => {
-        if (!this._paused) {
+        if (!this.paused) {
           // do this check at future data, to avoid play/pause constinously
           // buffering will start when don't have future data, and will end when have enough data
-          if (this._readyState <= dom.MediaElement.HAVE_FUTURE_DATA) {
+          if (this.readyState <= constant.MediaElement.HAVE_FUTURE_DATA) {
             // init buffering sequence
             if (!this._isBuffering) {
               this._isBuffering = true
@@ -315,8 +315,8 @@ namespace videomock {
           }
 
           let nextTime: number = (VideoMock.PLAYBACK_TIMER_RATE / 1000)
-          if ((this._currentTime + nextTime) >= this._duration) {
-            this._currentTime = this._duration
+          if ((this.currentTime + nextTime) >= this.duration) {
+            this._currentTime = this.duration
             // dispatch a final timeupdate before ended to be sure the listener are call almost once on very small video size
             this._dispatchEvent(event.MediaEvent.timeupdate)
             this._dispatchEvent(event.MediaEvent.ended)
@@ -342,7 +342,7 @@ namespace videomock {
   VideoMock.prototype._replay = function(): void {
     this._stopPlaybackTimer()
     this._currentTime = 0
-    this._readyState = dom.MediaElement.HAVE_FUTURE_DATA
+    this._readyState = constant.MediaElement.HAVE_FUTURE_DATA
     this._hasStarted = false
     this._hasLoadStarted = false
     this.play()

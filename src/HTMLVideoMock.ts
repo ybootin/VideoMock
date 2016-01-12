@@ -65,7 +65,7 @@ namespace videomock {
     switch (attributeName) {
       case 'width':
       case 'height':
-        this[attributeName] = Number(value)
+        this[attributeName] = parseInt(value)
         break
       case 'style':
         let computed = window.getComputedStyle(this)
@@ -80,21 +80,28 @@ namespace videomock {
         }
         break
       case 'src':
+      case 'preload':
         this.src = this.getAttribute('src')
         break
       case 'autoplay':
-      case 'preload':
       case 'loop':
-        this[attributeName] = Boolean(value)
+        this[attributeName] = (function() {
+          if (value === 'true') {
+            return true
+          } else if (value === 'false') {
+            return false
+          } else {
+            return value
+          }
+        })()
         break
     }
 
     this._ui.updateDisplay()
   }
 
-  export var HTMLVideoMock = document.registerElement('video-mocked', {
+  export var HTMLVideoMock = document.registerElement('video-mock', {
     prototype: CustomImpl.prototype,
-    extends: 'div'
   })
 
   // Must redefine HTMLElement overrided prototype, because document.registerElement will re-override them !

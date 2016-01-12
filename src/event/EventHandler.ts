@@ -18,7 +18,7 @@ namespace videomock.event {
       var index = this.listeners[type].indexOf(listener)
       if (index >= 0) {
         // reset callback
-        listener[index] = function(): void {}
+        this.listeners[type][index] = function(): void {}
       }
     }
 
@@ -30,7 +30,6 @@ namespace videomock.event {
       try {
         var listeners: Array<EventListener> = this.listeners[evt.type] || []
       } catch(e) {
-        console.log('handleEvent failled', evt)
         return
       }
       // exec listeners per event

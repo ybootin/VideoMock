@@ -1,6 +1,6 @@
 namespace videomock.constant {
   export class Common {
-    static DEFAULT_VOLUME: number = 0.7
+    static DEFAULT_VOLUME: number = 1
 
     // W3C specifications
     // @see http://dev.w3.org/html5/spec-preview/the-video-element.html#dom-video-videowidth

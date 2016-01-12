@@ -1,36 +1,41 @@
 /// <reference path="MediaElement.ts" />
+/// <reference path="../constant/Common.ts" />
 
 namespace videomock.dom {
+
+  // Must be a function to re-init default values on each call
+  var getProperties = function(): helper.IObjectHelperProperties {
+    var prop = helper.ObjectHelper.createObjectProperty
+
+    // remember, don't need to define type for getter only attribute,
+    // because type is only for type checking on setter
+    return {
+      'poster': prop(true, '', 'string'),
+      'width': prop(true, constant.Common.DEFAULT_VIDEOWIDTH, 'number'),
+      'height': prop(true, constant.Common.DEFAULT_VIDEOHEIGHT, 'number'),
+      'videoHeight': prop(false, 0),
+      'videoWidth': prop(false, 0),
+    }
+  }
+
   /**
-   * Abstract HTMLVideoElement implementation.
+   *  HTMLVideoElement implementation.
    *
    * @see http://dev.w3.org/html5/spec-preview/the-video-element.html#the-video-element
    */
   export var VideoElement = function() {
+    // init properties defaults values
+    helper.ObjectHelper.initPropertiesValues(this, getProperties())
+
     // super
     MediaElement.call(this)
-
-    // init properties
-    this._poster;
-    this._width = constant.Common.DEFAULT_VIDEOWIDTH;
-    this._height = constant.Common.DEFAULT_VIDEOHEIGHT;
-    this._videoHeight = 0;
-    this._videoWidth = 0;
   }
 
   VideoElement.prototype = MediaElement.prototype
 
-  var properties = {
-    'poster': [true, true],
-    'width': [true, true],
-    'height': [true, true],
-    'videoHeight': [true, false],
-    'videoWidth': [true, false],
-  }
-
-  for (var prop in properties) {
-    helper.ObjectHelper.genGetterSetter(VideoElement, prop, properties[prop][0], properties[prop][1])
-  }
+  // gen getters/ setters [haveGetter, haveSetter ]
+  // will generate properties, and _get _set prototype
+  helper.ObjectHelper.genGettersSetters(VideoElement, getProperties())
 
   // HTMLVideoElement method
   VideoElement.prototype.getVideoPlaybackQuality = function(): VideoPlaybackQuality {

@@ -1,6 +1,8 @@
 /// <reference path="../event/EventHandler.ts" />
 /// <reference path="../event/MediaEvent.ts" />
 /// <reference path="../constant/Common.ts" />
+/// <reference path="../constant/MediaElement.ts" />
+/// <reference path="../constant/Preload.ts" />
 /// <reference path="../helper/ObjectHelper.ts" />
 /// <reference path="TimeRanges.ts" />
 
@@ -11,15 +13,46 @@ namespace videomock.dom {
   interface IMediaElementConstructor {
     new(): HTMLMediaElement
     (): void
-    HAVE_NOTHING: number
-    HAVE_METADATA: number
-    HAVE_CURRENT_DATA: number
-    HAVE_FUTURE_DATA: number
-    HAVE_ENOUGH_DATA: number
-    NETWORK_EMPTY: number
-    NETWORK_IDLE: number
-    NETWORK_LOADING: number
-    NETWORK_NO_SOURCE: number
+  }
+
+  // Must be a function to re-init default values on each call
+  var getProperties = function(): helper.IObjectHelperProperties {
+    var prop = helper.ObjectHelper.createObjectProperty
+
+    // remember, don't need to define type for getter only attribute,
+    // because type is only for type checking on setter
+    return {
+      // getters only
+      'buffered': prop(false, new TimeRanges()),
+      'duration': prop(false, NaN),
+      'ended': prop(false, false),
+      'error': prop(false, null),
+      'networkState': prop(false, constant.MediaElement.NETWORK_EMPTY),
+      'paused': prop(false, false),
+      'played': prop(false, new TimeRanges()),
+      'readyState': prop(false, constant.MediaElement.HAVE_NOTHING),
+      'seekable': prop(false, new TimeRanges()),
+      'seeking': prop(false, false),
+      'currentSrc': prop(false, ""),
+
+      // getters + setters
+      'autoplay': prop(true, false, 'boolean'),
+      'controls': prop(true, false, 'boolean'),
+      'currentTime': prop(true, 0, 'number'),
+      'loop': prop(true, false, 'boolean'),
+      'muted': prop(true, false, 'boolean'),
+      'defaultMuted': prop(true, false, 'boolean'),
+      'playbackRate': prop(true, 1, 'number'),
+      'defaultPlaybackRate': prop(true, 1, 'number'),
+      'preload': prop(true, constant.Preload.DEFAULT, 'string'),
+      'src': prop(true, "", 'string'),
+      'volume': prop(true, constant.Common.DEFAULT_VOLUME, 'number'),
+
+      // FIXME : Not implemented for the moment
+      'audioTracks': prop(false, undefined),
+      'textTracks': prop(false, undefined),
+      'videoTracks': prop(false, undefined),
+    }
   }
 
   /**
@@ -28,83 +61,38 @@ namespace videomock.dom {
    * @see http://dev.w3.org/html5/spec-preview/media-elements.html#htmlmediaelement
    */
   export var MediaElement = <IMediaElementConstructor>function() {
-    // init properties values
-    this._audioTracks
-    this._autoplay = false;
-    this._buffered = new TimeRanges();
-    this._controls = false;
-    this._currentSrc;
-    this._currentTime = 0;
-    this._defaultMuted = false;
-    this._defaultPlaybackRate;
-    this._duration = 0;
-    this._ended = false;
-    this._error;
-    this._loop = false;
-    this._muted = false;
-    this._networkState = MediaElement.NETWORK_EMPTY;
-    this._paused = false;
-    this._playbackRate;
-    this._played = new TimeRanges();
-    this._preload = 'none';
-    this._readyState = MediaElement.HAVE_NOTHING;
-    this._seekable = new TimeRanges();
-    this._seeking = false;
-    this._src;
-    this._textTracks; // = new TextTrackList();
-    this._videoTracks; // = new VideoTrackList();
-    this._volume = constant.Common.DEFAULT_VOLUME;
+    // init properties defaults values
+    helper.ObjectHelper.initPropertiesValues(this, getProperties())
 
     // Dedicated, this one won't have getter/setter
     this._eventHandler = new event.EventHandler();
   }
 
-  MediaElement.prototype = Object.create(HTMLDivElement.prototype)
-
-  // Static properties
-  MediaElement.HAVE_NOTHING = 0; // - no information whether or not the audio/video is ready
-  MediaElement.HAVE_METADATA = 1; // - metadata for the audio/video is ready
-  MediaElement.HAVE_CURRENT_DATA = 2; // - data for the current playback position is available, but not enough data to play next frame/millisecond
-  MediaElement.HAVE_FUTURE_DATA = 3; // - data for the current and at least the next frame is available
-  MediaElement.HAVE_ENOUGH_DATA = 4; // - enough data available to start playing
-
-  MediaElement.NETWORK_EMPTY // FIXME : to be defined
-  MediaElement.NETWORK_IDLE // FIXME : to be defined
-  MediaElement.NETWORK_LOADING // FIXME : to be defined
-  MediaElement.NETWORK_NO_SOURCE // FIXME : to be defined
+  MediaElement.prototype = Object.create(HTMLElement.prototype)
 
   // gen getters/ setters [haveGetter, haveSetter ]
   // will generate properties, and _get _set prototype
-  var properties = {
-    'audioTracks': [true, false],
-    'autoplay': [true, true],
-    'buffered': [true, false],
-    'controls': [true, true],
-    'currentSrc': [true, false],
-    'currentTime': [true, true],
-    'defaultMuted': [true, true],
-    'defaultPlaybackRate': [true, true],
-    'duration': [true, false],
-    'ended': [true, false],
-    'error': [true, false],
-    'loop': [true, true],
-    'muted': [true, true],
-    'networkState': [true, false],
-    'paused': [true, false],
-    'playbackRate': [true, true],
-    'played': [true, false],
-    'preload': [true, true],
-    'readyState': [true, false],
-    'seekable': [true, false],
-    'seeking': [true, false],
-    'src': [true, true],
-    'textTracks': [true, false],
-    'videoTracks': [true, false],
-    'volume': [true, true],
+  helper.ObjectHelper.genGettersSetters(MediaElement, getProperties())
+
+  // Override default setter to prevent wrong value !
+  MediaElement.prototype._set_preload = function(value : string): void {
+    switch(value) {
+      case constant.Preload.NONE:
+      case constant.Preload.METADATA:
+      case constant.Preload.AUTO:
+      case constant.Preload.EMPTY:
+        this._preload = value
+        break
+    }
   }
 
-  for (var prop in properties) {
-    helper.ObjectHelper.genGetterSetter(MediaElement, prop, properties[prop][0], properties[prop][1])
+  // Check volume range
+  MediaElement.prototype._set_volume = function(value: number): void {
+    if (typeof value !== 'number' || value > 1 || value < 0) {
+      throw 'Failed to set the \'volume\' property on \'MediaElement\': The volume provided (100) is outside the range [0, 1]'
+    } else {
+      this._volume = value
+    }
   }
 
   /**
@@ -120,12 +108,14 @@ namespace videomock.dom {
   }
 
   MediaElement.prototype._dispatchEvent = function(eventName: string, eventData?: any): void {
-    this._handleEvent(new CustomEvent(eventName, eventData))
+    var evt = new CustomEvent(eventName, eventData)
+
+    this._handleEvent(evt)
 
     // Callback handler oneventname (onplay, oncanplay ...)
     var handler = this['on' + eventName]
     if (handler && typeof handler === 'function') {
-      handler()
+      handler(evt)
     }
   }
 
