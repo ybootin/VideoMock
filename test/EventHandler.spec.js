@@ -1,6 +1,6 @@
 // Test EventHandler
 
-xdescribe('EventHandler', function() {
+describe('EventHandler', function() {
   var testEventName = 'testevent'
   var handler
 

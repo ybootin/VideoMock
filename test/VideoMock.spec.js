@@ -10,7 +10,7 @@
  */
 
 
-xdescribe('HTMLVideoMock', function() {
+describe('HTMLVideoMock', function() {
   var video;
   var src;
 
@@ -34,8 +34,9 @@ xdescribe('HTMLVideoMock', function() {
     video.play()
   })
 
-  xit('Should not start loading if not preload or load() call', function(done) {
+  it('Should not start loading if preload=none and load() not called', function(done) {
     video = new videomock.HTMLVideoMock()
+    video.preload = "none"
 
     var loaded = false
     var onload = function() {
@@ -75,14 +76,18 @@ xdescribe('HTMLVideoMock', function() {
   })
 
   it('Should have first frame loaded', function(done) {
+    video = new videomock.HTMLVideoMock()
+
     video.addEventListener('loadeddata', function() {
       done()
     })
-
-    video.load()
+    video.src = src
+    // force load, if default preload propertie is not `auto`
+    //video.load()
   })
 
-  it('Should handle preload attribute', function(done) {
+  // FIXME, this check is no more revelant as default behavior is preload auto
+  xit('Should handle preload attribute', function(done) {
     video.addEventListener('loadeddata', function() {
       done()
     })
