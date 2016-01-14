@@ -95,6 +95,19 @@ namespace videomock.dom {
     }
   }
 
+  // Prevent oversize and negative size
+  MediaElement.prototype._set_currentTime = function(value: number): void {
+    if (typeof value === 'number' && !isNaN(value)) {
+      if (value < 0) {
+        this._currentTime = 0
+      } else if (value > this.duration) {
+        this._currentTime = this.duration
+      } else {
+        this._currentTime = value
+      }
+    }
+  }
+
   /**
    * Override addEventListener to handle dedicated media event.
    */
@@ -111,16 +124,16 @@ namespace videomock.dom {
     var evt = new CustomEvent(eventName, eventData)
 
     this._handleEvent(evt)
-
-    // Callback handler oneventname (onplay, oncanplay ...)
-    var handler = this['on' + eventName]
-    if (handler && typeof handler === 'function') {
-      handler(evt)
-    }
   }
 
   MediaElement.prototype._handleEvent = function(evt: CustomEvent): void {
     this._eventHandler.handleEvent(evt)
+
+    // Callback handler oneventname (onplay, oncanplay ...)
+    var handler = this['on' + evt.type]
+    if (handler && typeof handler === 'function') {
+      handler(evt)
+    }
   }
 
   /**

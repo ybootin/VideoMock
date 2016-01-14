@@ -295,6 +295,17 @@ namespace videomock {
     }
   }
 
+  VideoMock.prototype._set_currentTime = function(value: number): void {
+    if (typeof value === 'number' && !isNaN(value) && this.currentTime !== value) {
+      this._dispatchEvent(event.MediaEvent.seeking)
+
+      // use safe super call to set currentTime
+      dom.MediaElement.prototype._set_currentTime.call(this, value)
+
+      this._dispatchEvent(event.MediaEvent.seeked)
+    }
+  }
+
   VideoMock.prototype._shouldPreload = function(): boolean {
     return this.preload !== "none" && this.preload !== "metadata"
   }
@@ -337,14 +348,17 @@ namespace videomock {
           }
 
           let nextTime: number = (VideoMock.PLAYBACK_TIMER_RATE / 1000)
-          if ((this.currentTime + nextTime) >= this.duration) {
-            this.currentTime = this.duration
+
+          // Use super call, because it handle oversize of currentTime (mean current > duration)
+          // also do not use this.currentTime = , because it handle seek event,
+          dom.MediaElement.prototype._set_currentTime.call(this, this.currentTime + nextTime)
+
+          if (this.currentTime >= this.duration) {
             // dispatch a final timeupdate before ended to be sure the listener are call almost once on very small video size
             this._dispatchEvent(event.MediaEvent.timeupdate)
             this._dispatchEvent(event.MediaEvent.ended)
             this._stopPlaybackTimer()
           } else {
-            this.currentTime = this.currentTime + nextTime
             this._dispatchEvent(event.MediaEvent.timeupdate)
           }
         }
