@@ -11,6 +11,8 @@ namespace videomock.model {
     // The buffer size for HAVE_ENOUGHT_DATA
     BUFFERSIZE: number
 
+    METADATASIZE: number
+
     // Properties
     _readyState: number
     _sourceData: model.ISourceData
