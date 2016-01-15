@@ -18,6 +18,8 @@ module.exports = function(config) {
       'node_modules/customevent-polyfill/CustomEvent.js',
       'node_modules/webcomponents.js/MutationObserver.js',
 
+      'test/helper/HTMLMediaElement.js',
+
       // Source, for the moment, unable to test directly with TS source ...
       'dist/videomock.js',
 
@@ -29,32 +31,36 @@ module.exports = function(config) {
     exclude: [
     ],
 
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      '**/*.ts': ['typescript']
-    },
+    // Disable typescript config because this is really a mess to do testing with ts !!!
+    // Better do test in native JS
+    //
+    // // preprocess matching files before serving them to the browser
+    // // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+    // preprocessors: {
+    //   '**/*.ts': ['typescript']
+    // },
 
-    typescriptPreprocessor: {
-      // options passed to the typescript compiler
-      options: {
-        sourceMap: false, // (optional) Generates corresponding .map file.
-        target: 'ES5', // (optional) Specify ECMAScript target version: 'ES3' (default), or 'ES5'
-        module: 'amd', // (optional) Specify module code generation: 'commonjs' or 'amd'
-        noImplicitAny: false, // (optional) Warn on expressions and declarations with an implied 'any' type.
-        noResolve: false, // (optional) Skip resolution and preprocessing.
-        removeComments: true, // (optional) Do not emit comments to output.
-        concatenateOutput: false // (optional) Concatenate and emit output to single file. By default true if module option is omited, otherwise false.
-      },
-      // extra typing definitions to pass to the compiler (globs allowed)
-      typings: [
-        'typings/tsd.d.ts'
-      ],
-      // transforming the filenames
-      transformPath: function(path) {
-        return path.replace(/\.ts$/, '.js');
-      }
-    },
+    // typescriptPreprocessor: {
+    //   // options passed to the typescript compiler
+    //   options: {
+    //     sourceMap: false, // (optional) Generates corresponding .map file.
+    //     target: 'ES5', // (optional) Specify ECMAScript target version: 'ES3' (default), or 'ES5'
+    //     module: 'amd', // (optional) Specify module code generation: 'commonjs' or 'amd'
+    //     noImplicitAny: false, // (optional) Warn on expressions and declarations with an implied 'any' type.
+    //     noResolve: false, // (optional) Skip resolution and preprocessing.
+    //     removeComments: true, // (optional) Do not emit comments to output.
+    //     concatenateOutput: false // (optional) Concatenate and emit output to single file. By default true if module option is omited, otherwise false.
+    //   },
+    //   // extra typing definitions to pass to the compiler (globs allowed)
+    //   typings: [
+    //     'node_modules/karma-typescript-preprocessor/typings/jasmine/*.d.ts',
+    //     'typings/tsd.d.ts'
+    //   ],
+    //   // transforming the filenames
+    //   transformPath: function(path) {
+    //     return path.replace(/\.ts$/, '.js');
+    //   }
+    // },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -86,6 +92,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: true
+    singleRun: false
   });
 };

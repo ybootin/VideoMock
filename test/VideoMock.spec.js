@@ -11,6 +11,8 @@
 
 
 describe('HTMLVideoMock', function() {
+  videomock.test.HTMLMediaElement.itShouldHaveProperties(videomock.HTMLVideoMock)
+
   var video;
   var src;
 

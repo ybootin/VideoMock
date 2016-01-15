@@ -28,7 +28,7 @@ namespace videomock.dom {
       'ended': prop(false, false),
       'error': prop(false, null),
       'networkState': prop(false, constant.MediaElement.NETWORK_EMPTY),
-      'paused': prop(false, false),
+      'paused': prop(false, true),
       'played': prop(false, new TimeRanges()),
       'readyState': prop(false, constant.MediaElement.HAVE_NOTHING),
       'seekable': prop(false, new TimeRanges()),
@@ -79,9 +79,13 @@ namespace videomock.dom {
     switch(value) {
       case constant.Preload.NONE:
       case constant.Preload.METADATA:
+        this._preload = value
+        break
+      // This how chrome work
       case constant.Preload.AUTO:
       case constant.Preload.EMPTY:
-        this._preload = value
+      default:
+        this._preload = constant.Preload.AUTO
         break
     }
   }

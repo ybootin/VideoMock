@@ -5,6 +5,8 @@ namespace videomock.constant {
     static AUTO: string = 'auto'
     static EMPTY: string = ''
 
-    static DEFAULT: string = Preload.AUTO
+    static DEFAULT: string = (function(): string {
+      return /Firefox/.test(window.navigator.userAgent) ? Preload.EMPTY : Preload.AUTO
+    })()
   }
 }
