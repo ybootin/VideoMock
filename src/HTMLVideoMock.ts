@@ -51,11 +51,20 @@ namespace videomock {
 
     observer.observe(this, config);
 
-    this.appendChild(this._ui.getContainer())
+    if (typeof this.createShadowRoot === 'function') {
+      var shadow = this.createShadowRoot()
+      shadow.appendChild(this._ui.getContainer())
+    } else {
+      this.appendChild(this._ui.getContainer())
+    }
+
   }
 
   CustomImpl.prototype.detachedCallback = function(): void {
-    this.removeChild(this._ui.getContainer())
+    var cnt = this._ui.getContainer()
+    if (this.contains(cnt)) {
+      this.removeChild(cnt)
+    }
   }
 
 
