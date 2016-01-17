@@ -11,6 +11,11 @@ describe('videomock.helper.ObjectHelper', function() {
     expect(typeof videomock.helper.ObjectHelper.toNumber).toBe('function')
   })
 
+  it('Should have toNumber helper working', function() {
+    expect(videomock.helper.ObjectHelper.toNumber('300')).toBe(300)
+    expect(videomock.helper.ObjectHelper.toNumber('A1')).toBe('A1')
+  })
+
   describe('videomock.helper.ObjectHelper.genGetterSetter', function() {
     var object
     var prop = videomock.helper.ObjectHelper.createObjectProperty
@@ -29,6 +34,8 @@ describe('videomock.helper.ObjectHelper', function() {
       videomock.helper.ObjectHelper.genGetterSetter(Proto, 'test', properties.boolean)
 
       expect(object.test).toBe(true)
+      object.test = false
+      expect(object.test).toBe(false)
     })
   })
 

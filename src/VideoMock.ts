@@ -171,7 +171,7 @@ namespace videomock {
    */
   VideoMock.prototype._set_width = function(value: number): void {
     let width = this.width
-    dom.MediaElement.prototype._set_width.call(this, value)
+    dom.VideoElement.prototype._set_width.call(this, value)
 
     if (width !== this.width) {
       this._updateDimensions()
@@ -180,7 +180,7 @@ namespace videomock {
 
   VideoMock.prototype._set_height = function(value: number): void {
     let height = this.height
-    dom.MediaElement.prototype._set_height.call(this, value)
+    dom.VideoElement.prototype._set_height.call(this, value)
 
     if (height !== this.height) {
       this._updateDimensions()
@@ -288,6 +288,11 @@ namespace videomock {
   }
 
   VideoMock.prototype._updateDimensions = function(): void {
+    // we shouldn't do anything if we don't have metadata !
+    if (this.readyState < constant.MediaElement.HAVE_METADATA) {
+      return
+    }
+
     // calculate base video size !
     var videoRatio: number = this._sourceData.width / this._sourceData.height
     var requestRatio: number = this.width / this.height

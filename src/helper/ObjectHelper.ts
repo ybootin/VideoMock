@@ -62,7 +62,7 @@ namespace videomock.helper {
                   value = ObjectHelper.toNumber(value)
 
                   // no setter allow NaN or negative value on mediaElement
-                  if (t === 'number' && !isNaN(value) && value >= 0) {
+                  if (typeof value === 'number' && !isNaN(value) && value >= 0) {
                     return value
                   } else {
                     // Chrome set default value when invalid number

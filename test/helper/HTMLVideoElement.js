@@ -171,18 +171,17 @@ var videomock;
         describe('HTMLVideoElement properties', function() {
           var video = HTMLVideoElement.construct(Video)
 
-          it('Should have correct attributes default values as describe in W3C', function() {
+          it('Should have property poster', function() {
             expect(video.poster).toBe("")
-            expect(video.width).toBe(0)
-            expect(video.height).toBe(0)
-            expect(video.videoWidth).toBe(0)
-            expect(video.videoHeight).toBe(0)
-          })
 
-          it('Should have working setters implementation', function() {
             var url = "http://poster-url/poster.jpg"
             video.poster = url
             expect(video.poster).toBe(url)
+          })
+
+          it('Should have property width', function() {
+            // default value
+            expect(video.width).toBe(0)
 
             // check if type checking working on setter
             video.width = 400
@@ -190,19 +189,44 @@ var videomock;
             video.width = '300'
             expect(video.width).toBe(300)
 
+            // check wrong setter type
+            video.width = 'sfsdfs'
+            expect(typeof video.width).toBe('number')
+            expect(isNaN(video.width)).toBe(false)
+          })
+
+          it('Should have property height', function() {
+            // default value
+            expect(video.height).toBe(0)
+
+            // check if type checking working on setter
             video.height = 400
             expect(video.height).toBe(400)
             video.height = '300'
             expect(video.height).toBe(300)
 
-            // Should have stay unchange, because video metadata not loaded
+            // check wrong setter type
+            video.height = 'sfsdfs'
+            expect(typeof video.height).toBe('number')
+            expect(isNaN(video.height)).toBe(false)
+          })
+
+          it('Should have property videoWidth', function() {
+            // default value
             expect(video.videoWidth).toBe(0)
+
+            // video width have no setter
+            video.videoWidth = 10
+            expect(video.videoWidth).toBe(0)
+          })
+
+          it('Should have property videoHeight', function() {
+            // default value
             expect(video.videoHeight).toBe(0)
 
-            video.width = 'sfsdfs'
-            expect(video.width).toBe(0)
-            video.height = 'sfsdfs'
-            expect(video.height).toBe(0)
+            // video height have no setter
+            video.videoHeight = 10
+            expect(video.videoHeight).toBe(0)
           })
         })
       }
@@ -210,7 +234,7 @@ var videomock;
       HTMLVideoElement.itShouldHaveMethods = function(Video) {
         var video = HTMLVideoElement.construct(Video)
 
-        it('Should implement HTMLMediaElement methods', function() {
+        it('Should implement HTMLVideoElement methods', function() {
           expect(typeof video.getVideoPlaybackQuality).toBe('function')
           expect(typeof video.webkitEnterFullscreen).toBe('function')
           expect(typeof video.webkitExitFullscreen).toBe('function')
