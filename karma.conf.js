@@ -18,7 +18,9 @@ module.exports = function(config) {
       'node_modules/customevent-polyfill/CustomEvent.js',
       'node_modules/webcomponents.js/MutationObserver.js',
 
+      // Common test for HTMLElement implementation
       'test/helper/HTMLMediaElement.js',
+      'test/helper/HTMLVideoElement.js',
 
       // Source, for the moment, unable to test directly with TS source ...
       'dist/videomock.js',

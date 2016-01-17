@@ -92,8 +92,10 @@ namespace videomock.dom {
 
   // Check volume range
   MediaElement.prototype._set_volume = function(value: number): void {
+    value = helper.ObjectHelper.toNumber(value)
+
     if (typeof value !== 'number' || value > 1 || value < 0) {
-      throw 'Failed to set the \'volume\' property on \'MediaElement\': The volume provided (100) is outside the range [0, 1]'
+      throw 'Failed to set the \'volume\' property on \'MediaElement\': The volume provided (' + value + ') is outside the range [0, 1]'
     } else {
       this._volume = value
     }
@@ -101,6 +103,8 @@ namespace videomock.dom {
 
   // Prevent oversize and negative size
   MediaElement.prototype._set_currentTime = function(value: number): void {
+    value = helper.ObjectHelper.toNumber(value)
+
     if (typeof value === 'number' && !isNaN(value)) {
       if (value < 0) {
         this._currentTime = 0

@@ -1,12 +1,13 @@
 namespace videomock.constant {
   export class Preload {
+    static VALUES: Array<string> = ['', 'auto', 'metadata', 'none']
+
     static NONE: string = 'none'
     static METADATA: string = 'metadata'
     static AUTO: string = 'auto'
     static EMPTY: string = ''
 
-    static DEFAULT: string = (function(): string {
-      return /Firefox/.test(window.navigator.userAgent) ? Preload.EMPTY : Preload.AUTO
-    })()
+    // same behvior as chrome & safari
+    static DEFAULT: string =  Preload.AUTO
   }
 }

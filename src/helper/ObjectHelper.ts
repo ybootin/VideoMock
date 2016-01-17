@@ -26,24 +26,24 @@ namespace videomock.helper {
     static genGettersSetters(classObject: Function, properties: IObjectHelperProperties): void {
       for (var prop in properties) {
         if (properties.hasOwnProperty(prop)) {
-          helper.ObjectHelper.genGetterSetter(classObject, prop, true, properties[prop]['haveSetter'], true, true, properties[prop]['type'])
+          helper.ObjectHelper.genGetterSetter(classObject, prop, properties[prop]) // true, properties[prop]['haveSetter'], true, true, properties[prop]['type'])
         }
       }
     }
 
-    static genGetterSetter(classObject: Function, name: string, getter: boolean = true, setter: boolean = true, isEnumerable: boolean = true, isConfigurable: boolean = true, type?: string ): void {
+    static genGetterSetter(classObject: Function, name: string, property: IObjectHelperProperty): void { //name: string, getter: boolean = true, setter: boolean = true, isEnumerable: boolean = true, isConfigurable: boolean = true, type?: string): void {
       // this is dirty, but this is a simple way to get getter/setter of the private attributes
       // this way you override getter/setter without call Object.defineProperty again.
       // just override the setter `_get|set_name()`
       Object.defineProperty(classObject.prototype, name, (function(): IPropertyObject {
         // getter prototype
         classObject.prototype['_get_' + name] = function() {
-          return this['_' + name]
+          return typeof this['_' + name] === 'undefined' ? property.defaultValue : this['_' + name]
         }
 
         var prop = {
-          'enumerable': isEnumerable,
-          'configurable': isConfigurable,
+          'enumerable': true,
+          'configurable': true,
           'get': function (): any {
             return this['_get_' + name]()
           },
@@ -51,16 +51,31 @@ namespace videomock.helper {
         }
 
         //define setter only if needed
-        if (setter) {
+        if (property.haveSetter) {
           // setter prototype
           classObject.prototype['_set_' + name] = function(value) {
-            var _this = this
-            this['_' + name] = (function() {
-              switch(type) {
+            this['_' + name] = (() => {
+              let t = typeof value
+              switch (property.type) {
                 case 'number':
-                case 'function':
+                  // Always try a cast to number, because all browsers accept this numberAttribute = '300'
+                  value = ObjectHelper.toNumber(value)
+
+                  // no setter allow NaN or negative value on mediaElement
+                  if (t === 'number' && !isNaN(value) && value >= 0) {
+                    return value
+                  } else {
+                    // Chrome set default value when invalid number
+                    // Firefox unchange value
+                    return property.defaultValue
+                  }
                 case 'string':
-                  return typeof value === type ? value : _this['_' + name]
+                  if (t === 'number') {
+                    return String(t)
+                  }
+                  // do not break, string will act the same
+                case 'function':
+                  return typeof t === property.type ? value : this[name]
                 case 'boolean': return !!value
                 default: return value
               }
@@ -103,6 +118,14 @@ namespace videomock.helper {
         'haveSetter': haveSetter,
         'defaultValue': defaultValue,
         'type': type,
+      }
+    }
+
+    static toNumber(value: any): any {
+      if (typeof value === 'string' && /^[0-9]+$/.test(value)) {
+        return parseInt(value)
+      } else {
+        return value
       }
     }
   }

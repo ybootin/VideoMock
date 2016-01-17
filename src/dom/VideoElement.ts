@@ -11,8 +11,8 @@ namespace videomock.dom {
     // because type is only for type checking on setter
     return {
       'poster': prop(true, '', 'string'),
-      'width': prop(true, constant.Common.DEFAULT_VIDEOWIDTH, 'number'),
-      'height': prop(true, constant.Common.DEFAULT_VIDEOHEIGHT, 'number'),
+      'width': prop(true, 0, 'number'),
+      'height': prop(true, 0, 'number'),
       'videoHeight': prop(false, 0),
       'videoWidth': prop(false, 0),
     }
