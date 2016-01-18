@@ -70,12 +70,12 @@ namespace videomock.helper {
                     return property.defaultValue
                   }
                 case 'string':
-                  if (t === 'number') {
-                    return String(t)
+                  if (t !== 'string') {
+                    return String(value)
                   }
-                  // do not break, string will act the same
+                  // do not break, string will act the same as bellow
                 case 'function':
-                  return typeof t === property.type ? value : this[name]
+                  return t === property.type ? value : this[name]
                 case 'boolean': return !!value
                 default: return value
               }
