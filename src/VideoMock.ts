@@ -5,9 +5,10 @@
 /// <reference path="model/IVideoMock.ts" />
 /// <reference path="VideoMockURL.ts" />
 /// <reference path="event/MediaEvent.ts" />
-/// <reference path="polyfill/ProgressEvent.ts" />
 /// <reference path="constant/LoadStatus.ts" />
 /// <reference path="constant/PlaybackStatus.ts" />
+/// <reference path="polyfill/ProgressEvent.ts" />
+/// <reference path="polyfill/CustomEvent.ts" />
 
 namespace videomock {
   /**

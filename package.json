@@ -4,8 +4,7 @@
   "repository": "git@github.com/ybootin/VideoMock.git",
   "version": "0.0.1",
   "dependencies": {
-    "customevent-polyfill": "git@github.com:d4tocchini/customevent-polyfill.git#master",
-    "document-register-element": "git://github.com/WebReflection/document-register-element.git#master",
+    "document-register-element": "^0.5.3",
     "webcomponents.js": "^0.7.20"
   },
   "files": [
