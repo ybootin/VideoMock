@@ -41,12 +41,17 @@ var videomock;
         var video;
         var src;
 
+        var originalTimeout;
+
         beforeEach(function() {
           video = HTMLVideoElement.construct(Video)
           src = HTMLVideoElement.getSrc(Video, {
             'duration': 2
           })
           video.src = src
+
+          originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+          jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
         });
 
         it('Should start playback', function(done) {
@@ -118,30 +123,6 @@ var videomock;
           video.preload = 'auto'
         })
 
-        it('Should handle preload metadata only', function(done) {
-          video = HTMLVideoElement.construct(Video)
-
-          var metadata = false
-          var loadeddata = false
-          video.addEventListener('loadeddata', function() {
-            loadeddata = true
-          })
-          video.addEventListener('loadedmetadata', function() {
-            metadata = true
-          })
-          setTimeout(function() {
-            if (!loadeddata && metadata) {
-              done()
-            } else {
-              fail('loadedmetadata event should be dispatched, but not loadeddata event (loadeddata:' + loadeddata.toString() + ', loadedmetadata:' + metadata.toString() + ')')
-            }
-          }, 1000)
-
-          video.preload = 'metadata'
-
-          video.src = src
-        })
-
         it('Should load progress', function(done) {
           video.addEventListener('progress', function() {
             done()
@@ -163,6 +144,10 @@ var videomock;
           })
           video.play()
         })
+
+        afterEach(function() {
+          jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+        });
       }
 
       HTMLVideoElement.itShouldHaveProperties = function(Video) {
