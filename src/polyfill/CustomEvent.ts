@@ -3,20 +3,21 @@ interface Window {
 }
 
 if (!window.CustomEvent) {
-  (function(window) {
+  (function(window: Window): void {
     function CustomEvent(event: string, params: any): CustomEvent {
       params = params || {
         bubbles: false,
         cancelable: false,
-        detail: undefined
-      };
-      var evt: CustomEvent = <CustomEvent>document.createEvent("CustomEvent");
+        detail: undefined,
+      }
+
+      let evt: CustomEvent = <CustomEvent>document.createEvent("CustomEvent");
       evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
       return evt;
-    };
+    }
 
     CustomEvent.prototype = Event.prototype;
 
-    window.CustomEvent = CustomEvent;
+    window.CustomEvent = CustomEvent
   })(window)
 }

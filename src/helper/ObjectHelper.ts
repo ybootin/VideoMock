@@ -24,7 +24,7 @@ namespace videomock.helper {
      * @param {IObjectHelperProperties} properties  [description]
      */
     static genGettersSetters(classObject: Function, properties: IObjectHelperProperties): void {
-      for (var prop in properties) {
+      for (let prop in properties) {
         if (properties.hasOwnProperty(prop)) {
           helper.ObjectHelper.genGetterSetter(classObject, prop, properties[prop]) // true, properties[prop]['haveSetter'], true, true, properties[prop]['type'])
         }
@@ -37,25 +37,25 @@ namespace videomock.helper {
       // just override the setter `_get|set_name()`
       Object.defineProperty(classObject.prototype, name, (function(): IPropertyObject {
         // getter prototype
-        classObject.prototype['_get_' + name] = function() {
+        classObject.prototype['_get_' + name] = function(): any {
           return typeof this['_' + name] === 'undefined' ? property.defaultValue : this['_' + name]
         }
 
-        var prop = {
+        let prop: IPropertyObject = <IPropertyObject>{
           'enumerable': true,
           'configurable': true,
           'get': function (): any {
             return this['_get_' + name]()
           },
-          set: function(value: any) {}
+          set: function(value: any): void { return void(value) },
         }
 
         //define setter only if needed
         if (property.haveSetter) {
           // setter prototype
-          classObject.prototype['_set_' + name] = function(value) {
+          classObject.prototype['_set_' + name] = function(value: any): void {
             this['_' + name] = (() => {
-              let t = typeof value
+              let t: string = typeof value
               switch (property.type) {
                 case 'number':
                   // Always try a cast to number, because all browsers accept this numberAttribute = '300'
@@ -98,10 +98,12 @@ namespace videomock.helper {
      * @param {any}                     scope      [description]
      * @param {IObjectHelperProperties} attributes [description]
      */
-    static initPropertiesValues(scope: any, properties: IObjectHelperProperties) {
-      for (var prop in properties) {
+    static initPropertiesValues(scope: any, properties: IObjectHelperProperties): void {
+      for (let prop in properties) {
         if (properties.hasOwnProperty(prop)) {
-          scope['_' + prop] = properties[prop]['defaultValue']
+          /* tslint:disable:no-string-literal */
+          scope['_' + prop] = properties[prop].defaultValue
+          /* tslint:enable */
         }
       }
     }
@@ -123,7 +125,7 @@ namespace videomock.helper {
 
     static toNumber(value: any): any {
       if (typeof value === 'string' && /^[0-9]+$/.test(value)) {
-        return parseInt(value)
+        return parseInt(value, 10)
       } else {
         return value
       }

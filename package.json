@@ -22,17 +22,20 @@
     "karma-typescript-preprocessor": "0.0.21",
     "karma-verbose-reporter": "0.0.3",
     "phantomjs": "^1.9.19",
+    "tslint": "^3.2.2",
     "typescript": "1.7.5",
     "uglify-js": "2.4.24",
     "watch": "0.17.1"
   },
   "scripts": {
-    "prepublish": "npm run build",
-    "build": "node_modules/typescript/bin/tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
+    "prepublish": "npm run build && npm run uglify",
+    "build": "npm run buildts",
+    "buildts": "node_modules/typescript/bin/tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
     "watch": "node_modules/watch/cli.js 'npm run build' src/",
     "sample": "node_modules/http-server/bin/http-server -c-1 --cors",
     "dev": "npm run build && npm run sample",
     "uglify": "node_modules/uglify-js/bin/uglifyjs -o dist/videomock.min.js dist/videomock.js",
-    "test": "npm run build && node_modules/karma/bin/karma start"
+    "test": "npm run lint && npm run build && node_modules/karma/bin/karma start",
+    "lint": "node_modules/tslint/bin/tslint -c .tslint src/**/*.ts"
   }
 }

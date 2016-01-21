@@ -16,8 +16,8 @@ namespace videomock.dom {
   }
 
   // Must be a function to re-init default values on each call
-  var getProperties = function(): helper.IObjectHelperProperties {
-    var prop = helper.ObjectHelper.createObjectProperty
+  let getProperties: Function = function(): helper.IObjectHelperProperties {
+    let prop: Function = helper.ObjectHelper.createObjectProperty
 
     // remember, don't need to define type for getter only attribute,
     // because type is only for type checking on setter
@@ -60,7 +60,9 @@ namespace videomock.dom {
    *
    * @see http://dev.w3.org/html5/spec-preview/media-elements.html#htmlmediaelement
    */
-  export var MediaElement = <IMediaElementConstructor>function() {
+  /* tslint:disable:variable-name */
+  export var MediaElement: IMediaElementConstructor = <IMediaElementConstructor>function(): void {
+  /* tslint:enable:variable-name */
     // init properties defaults values
     helper.ObjectHelper.initPropertiesValues(this, getProperties())
 
@@ -75,8 +77,8 @@ namespace videomock.dom {
   helper.ObjectHelper.genGettersSetters(MediaElement, getProperties())
 
   // Override default setter to prevent wrong value !
-  MediaElement.prototype._set_preload = function(value : string): void {
-    switch(value) {
+  MediaElement.prototype._set_preload = function(value: string): void {
+    switch (value) {
       case constant.Preload.NONE:
       case constant.Preload.METADATA:
         this._preload = value
@@ -129,7 +131,7 @@ namespace videomock.dom {
   }
 
   MediaElement.prototype._dispatchEvent = function(eventName: string, eventData?: any): void {
-    var evt = new CustomEvent(eventName, eventData)
+    let evt: CustomEvent = new CustomEvent(eventName, eventData)
 
     this._handleEvent(evt)
   }
@@ -138,7 +140,7 @@ namespace videomock.dom {
     this._eventHandler.handleEvent(evt)
 
     // Callback handler oneventname (onplay, oncanplay ...)
-    var handler = this['on' + evt.type]
+    let handler: Function = this['on' + evt.type]
     if (handler && typeof handler === 'function') {
       handler(evt)
     }
@@ -153,7 +155,9 @@ namespace videomock.dom {
   }
 
   // Methods to be overriden !
+  /* tslint:disable */
   MediaElement.prototype.load = function(): void {}
   MediaElement.prototype.pause = function(): void {}
   MediaElement.prototype.play = function(): void {}
+  /* tslint:enable */
 }

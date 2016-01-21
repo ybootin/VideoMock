@@ -15,10 +15,10 @@ namespace videomock.event {
     }
 
     public removeEventListener(type: string, listener: EventListener, useCapture?: boolean): void {
-      var index = this.listeners[type].indexOf(listener)
+      let index: number = this.listeners[type].indexOf(listener)
       if (index >= 0) {
         // reset callback
-        this.listeners[type][index] = function(): void {}
+        this.listeners[type][index] = () => void(0)
       }
     }
 
@@ -27,15 +27,15 @@ namespace videomock.event {
     }
 
     public handleEvent(evt: Event): void {
-      try {
-        var listeners: Array<EventListener> = this.listeners[evt.type] || []
-      } catch(e) {
+      if (!this.listeners[evt.type] || !this.listeners[evt.type].length) {
         return
       }
+
       // exec listeners per event
-      for (var i = 0, l = listeners.length; i < l ; i++) {
+      for (let i: number = 0, l: number = this.listeners[evt.type].length; i < l ; i++) {
+        // Try/catch must be inside the loop, to avoid callback crashing and fail the others
         try {
-          listeners[i](evt)
+          this.listeners[evt.type][i](evt)
         }
         catch (err) {
           // to be implemented !!!
