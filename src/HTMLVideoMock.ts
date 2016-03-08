@@ -36,6 +36,15 @@ namespace videomock {
     checkAttributes.forEach((att: string): void => {
       if (this.hasAttribute(att)) {
         this.attributeChangedCallback(att)
+      } else {
+        switch (att) {
+          case 'width':
+            this.width = constant.Common.DEFAULT_VIDEOWIDTH
+            break
+          case 'height':
+            this.height = constant.Common.DEFAULT_VIDEOHEIGHT
+            break
+        }
       }
     })
 

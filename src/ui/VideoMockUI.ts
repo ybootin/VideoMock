@@ -86,26 +86,34 @@ namespace videomock.ui {
       })
 
       helper.HTMLHelper.applyStyle(this.videoContainer, {
-        'width': this.video.videoWidth + 'px',
-        'height': this.video.videoHeight + 'px',
-        'left': (this.video.width - this.video.videoWidth) / 2 + 'px',
-        'top': (this.video.height - this.video.videoHeight) / 2 + 'px',
+        'width': this.getVideoWidth() + 'px',
+        'height': this.getVideoHeight() + 'px',
+        'left': (this.video.width - this.getVideoWidth()) / 2 + 'px',
+        'top': (this.video.height - this.getVideoHeight()) / 2 + 'px',
       })
 
       helper.HTMLHelper.applyStyle(this.progressBar, {
-        'height': this.video.videoHeight + 'px',
+        'height': this.getVideoHeight() + 'px',
         'width': percentPlayed + '%',
       })
 
       let content: string = '<h3>VideoMock info</h3>' +
         'URL: ' + this.video.src +
-        '<br/>Size: ' + this.video.width + 'x' + this.video.height + ' (video : ' + Math.round(this.video.videoWidth) + 'x' + Math.round(this.video.videoHeight) + ')' +
+        '<br/>Size: ' + this.video.width + 'x' + this.video.height + ' (video : ' + Math.round(this.getVideoWidth()) + 'x' + Math.round(this.getVideoHeight()) + ')' +
         '<br/>Load : ' + Math.round(this.percentLoaded * this.video._sourceData.fileSize) + '/' + this.video._sourceData.fileSize + 'Ko (' + (Math.round(this.percentLoaded * 100)) + '%), bandwidth : ' + this.video._sourceData.bandwidth + 'kbps' +
         '<br/>Playback: ' + Math.round(this.video.currentTime) + '/' + this.video.duration + 's (' + Math.round(percentPlayed) + '%)' +
         '<br/>Volume: ' + this.video.volume +
         '<br/>Status: ' + this.status
 
       this.contentContainer.innerHTML = content
+    }
+
+    private getVideoWidth(): number {
+      return this.video.videoWidth || constant.Common.DEFAULT_VIDEOWIDTH
+    }
+
+    private getVideoHeight(): number {
+      return this.video.videoHeight || constant.Common.DEFAULT_VIDEOHEIGHT
     }
 
     private onWaiting(): void {
