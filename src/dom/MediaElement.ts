@@ -10,7 +10,7 @@ namespace videomock.dom {
 
 
   // Must type constructor to define static properties
-  interface IMediaElementConstructor {
+  export interface IMediaElementConstructor {
     new(): HTMLMediaElement
     (): void
   }

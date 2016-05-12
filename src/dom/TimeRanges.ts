@@ -1,5 +1,5 @@
 namespace videomock.dom {
-  interface ITimeRange {
+  export interface ITimeRange {
     start: number
     end: number
   }
