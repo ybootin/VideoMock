@@ -36,7 +36,8 @@ var videomock;
       }
 
       HTMLVideoElement.itShouldWork = function(Video) {
-        videomock.test.HTMLMediaElement.itShouldHaveProperties(videomock.HTMLVideoMock)
+
+        videomock.test.HTMLMediaElement.itShouldHaveProperties(Video)
 
         var video;
         var src;

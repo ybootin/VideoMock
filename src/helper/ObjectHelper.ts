@@ -1,5 +1,5 @@
 namespace videomock.helper {
-  interface IPropertyObject {
+  export interface IPropertyObject {
     enumerable: boolean
     configurable: boolean
     get(): any

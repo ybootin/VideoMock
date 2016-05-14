@@ -15,8 +15,36 @@ namespace videomock.dom {
     (): void
   }
 
+  export interface IMediaElementProperty {
+    buffered: helper.IObjectHelperProperty
+    duration: helper.IObjectHelperProperty
+    ended: helper.IObjectHelperProperty
+    error: helper.IObjectHelperProperty
+    networkState: helper.IObjectHelperProperty
+    paused: helper.IObjectHelperProperty
+    played: helper.IObjectHelperProperty
+    readyState: helper.IObjectHelperProperty
+    seekable: helper.IObjectHelperProperty
+    seeking: helper.IObjectHelperProperty
+    currentSrc: helper.IObjectHelperProperty
+    autoplay: helper.IObjectHelperProperty
+    controls: helper.IObjectHelperProperty
+    currentTime: helper.IObjectHelperProperty
+    loop: helper.IObjectHelperProperty
+    muted: helper.IObjectHelperProperty
+    defaultMuted: helper.IObjectHelperProperty
+    playbackRate: helper.IObjectHelperProperty
+    defaultPlaybackRate: helper.IObjectHelperProperty
+    preload: helper.IObjectHelperProperty
+    src: helper.IObjectHelperProperty
+    volume: helper.IObjectHelperProperty
+    audioTracks: helper.IObjectHelperProperty
+    textTracks: helper.IObjectHelperProperty
+    videoTracks: helper.IObjectHelperProperty
+  }
+
   // Must be a function to re-init default values on each call
-  let getProperties: Function = function(): helper.IObjectHelperProperties {
+  export var getMediaElementProperties: Function = function(): IMediaElementProperty {
     let prop: Function = helper.ObjectHelper.createObjectProperty
 
     // remember, don't need to define type for getter only attribute,
@@ -64,7 +92,7 @@ namespace videomock.dom {
   export var MediaElement: IMediaElementConstructor = <IMediaElementConstructor>function(): void {
   /* tslint:enable:variable-name */
     // init properties defaults values
-    helper.ObjectHelper.initPropertiesValues(this, getProperties())
+    helper.ObjectHelper.initPropertiesValues(this, getMediaElementProperties())
 
     // Dedicated, this one won't have getter/setter
     this._eventHandler = new event.EventHandler();
@@ -74,7 +102,7 @@ namespace videomock.dom {
 
   // gen getters/ setters [haveGetter, haveSetter ]
   // will generate properties, and _get _set prototype
-  helper.ObjectHelper.genGettersSetters(MediaElement, getProperties())
+  helper.ObjectHelper.genGettersSetters(MediaElement, getMediaElementProperties())
 
   // Override default setter to prevent wrong value !
   MediaElement.prototype._set_preload = function(value: string): void {

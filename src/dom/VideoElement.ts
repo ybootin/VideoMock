@@ -1,10 +1,19 @@
 /// <reference path="MediaElement.ts" />
+/// <reference path="../helper/ObjectHelper.ts" />
 /// <reference path="../constant/Common.ts" />
 
 namespace videomock.dom {
 
+  export interface IVideoElementProperty {
+    poster: helper.IObjectHelperProperty
+    width: helper.IObjectHelperProperty
+    height: helper.IObjectHelperProperty
+    videoHeight: helper.IObjectHelperProperty
+    videoWidth: helper.IObjectHelperProperty
+  }
+
   // Must be a function to re-init default values on each call
-  let getProperties: Function = function(): helper.IObjectHelperProperties {
+  export var getVideoElementProperties: Function = function(): IVideoElementProperty {
     let prop: Function = helper.ObjectHelper.createObjectProperty
 
     // remember, don't need to define type for getter only attribute,
@@ -28,7 +37,7 @@ namespace videomock.dom {
   /* tslint:enable:variable-name */
 
     // init properties defaults values
-    helper.ObjectHelper.initPropertiesValues(this, getProperties())
+    helper.ObjectHelper.initPropertiesValues(this, getVideoElementProperties())
 
     // super
     MediaElement.call(this)
@@ -38,7 +47,7 @@ namespace videomock.dom {
 
   // gen getters/ setters [haveGetter, haveSetter ]
   // will generate properties, and _get _set prototype
-  helper.ObjectHelper.genGettersSetters(VideoElement, getProperties())
+  helper.ObjectHelper.genGettersSetters(VideoElement, getVideoElementProperties())
 
   // HTMLVideoElement method
   VideoElement.prototype.getVideoPlaybackQuality = function(): VideoPlaybackQuality {

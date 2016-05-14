@@ -71,7 +71,7 @@ var videomock;
                   // readonly
                   var src = 'http://src/video.mp4'
                   media.currentSrc = src
-                  expect(media.src).toBe('')
+                  expect(media.currentSrc).toBe('')
                 })
 
                 it('Should have property duration', function() {

@@ -30,7 +30,7 @@
   "scripts": {
     "prepublish": "npm run build && npm run uglify",
     "build": "npm run buildts",
-    "buildts": "node_modules/typescript/bin/tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts",
+    "buildts": "node_modules/typescript/bin/tsc --out dist/videomock.js --removeComments --sourceMap -t ES5 src/HTMLVideoMock.ts src/VideoWrapper.ts",
     "watch": "node_modules/watch/cli.js 'npm run build' src/",
     "sample": "node_modules/http-server/bin/http-server -c-1 --cors",
     "dev": "npm run build && npm run sample",
