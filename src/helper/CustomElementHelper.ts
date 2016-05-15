@@ -1,4 +1,4 @@
-/// <reference path="HTMLHelper.ts" />
+/// <reference path="HTMLElementHelper.ts" />
 
 namespace videomock.helper {
   export class CustomElementHelper {
@@ -7,16 +7,7 @@ namespace videomock.helper {
       let observer: MutationObserver = new MutationObserver((mutations: Array<MutationRecord>) => {
         mutations.forEach((mutation: MutationRecord) => {
           if (mutation.attributeName === 'style') {
-            let computed: CSSStyleDeclaration = HTMLHelper.getWindow(customElement).getComputedStyle(customElement)
-            let width: number = Number(computed.getPropertyValue('width').replace('px', ''))
-            let height: number = Number(computed.getPropertyValue('height').replace('px', ''))
-
-            if (width !== customElement.width) {
-              customElement.width = width
-            }
-            if (height !== customElement.height) {
-              customElement.height = height
-            }
+            CustomElementHelper.handleStyleChange(customElement)
           }
         })
       })
@@ -28,6 +19,20 @@ namespace videomock.helper {
       });
 
       return observer
+    }
+
+    static handleStyleChange(customElement: HTMLVideoElement): void {
+      let computed: CSSStyleDeclaration = HTMLElementHelper.getWindow(customElement).getComputedStyle(customElement)
+
+      let width: number = Number(computed.getPropertyValue('width').replace('px', ''))
+      let height: number = Number(computed.getPropertyValue('height').replace('px', ''))
+
+      if (width !== customElement.width) {
+        customElement.width = width
+      }
+      if (height !== customElement.height) {
+        customElement.height = height
+      }
     }
 
     static parseAttributes(customElement: HTMLElement): void {

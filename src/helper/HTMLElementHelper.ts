@@ -1,9 +1,6 @@
-interface Document {
-  parentWindow: Window
-}
 
 namespace videomock.helper {
-  export class HTMLHelper {
+  export class HTMLElementHelper {
     static applyStyle(element: HTMLElement, style: any): void {
       for (let att in style) {
         if (element.style.hasOwnProperty(att)) {
@@ -13,7 +10,8 @@ namespace videomock.helper {
     }
 
     static getWindow(element: HTMLElement): Window {
-      let doc: Document = HTMLHelper.getDocument(element)
+      // Use type any to avoid define interface Document {parentWindow: window}, and avoid duplicate error
+      let doc: any = <any>HTMLElementHelper.getDocument(element)
       return doc.defaultView || doc.parentWindow
     }
 

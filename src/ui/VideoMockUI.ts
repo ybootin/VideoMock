@@ -1,4 +1,4 @@
-/// <reference path="../helper/HTMLHelper.ts" />
+/// <reference path="../helper/HTMLElementHelper.ts" />
 /// <reference path="../event/MediaEvent.ts" />
 /// <reference path="../dom/MediaElement.ts" />
 /// <reference path="../model/IVideoMock.ts" />
@@ -33,14 +33,14 @@ namespace videomock.ui {
 
       // main container, black background will provide letterbox/pillarbox
       this.mainContainer = <HTMLDivElement>document.createElement('div')
-      helper.HTMLHelper.applyStyle(this.mainContainer, {
+      helper.HTMLElementHelper.applyStyle(this.mainContainer, {
         'position': 'relative',
         'backgroundColor': '#000000',
       })
 
       // simulate video size, absolutly centerd on background
       this.videoContainer = <HTMLDivElement>document.createElement('div')
-      helper.HTMLHelper.applyStyle(this.videoContainer, {
+      helper.HTMLElementHelper.applyStyle(this.videoContainer, {
         'overflow': 'hidden',
         'backgroundColor': '#CCCCCC',
         'position': 'absolute',
@@ -48,7 +48,7 @@ namespace videomock.ui {
 
       // Just to provide an animation
       this.progressBar = <HTMLDivElement>document.createElement('div')
-      helper.HTMLHelper.applyStyle(this.progressBar, {
+      helper.HTMLElementHelper.applyStyle(this.progressBar, {
         'zIndex': '2',
         'backgroundColor': '#999999',
         'position': 'absolute',
@@ -56,7 +56,7 @@ namespace videomock.ui {
       })
 
       this.contentContainer = <HTMLDivElement>document.createElement('div')
-      helper.HTMLHelper.applyStyle(this.contentContainer, {
+      helper.HTMLElementHelper.applyStyle(this.contentContainer, {
         'fontSize': '11px',
         'fontFamily': 'monaco',
         'position': 'absolute',
@@ -80,19 +80,19 @@ namespace videomock.ui {
     public updateDisplay(): void {
       let percentPlayed: number = this.video.currentTime / this.video.duration * 100
 
-      helper.HTMLHelper.applyStyle(this.mainContainer, {
+      helper.HTMLElementHelper.applyStyle(this.mainContainer, {
         'width': this.video.width + 'px',
         'height': this.video.height + 'px',
       })
 
-      helper.HTMLHelper.applyStyle(this.videoContainer, {
+      helper.HTMLElementHelper.applyStyle(this.videoContainer, {
         'width': this.getVideoWidth() + 'px',
         'height': this.getVideoHeight() + 'px',
         'left': (this.video.width - this.getVideoWidth()) / 2 + 'px',
         'top': (this.video.height - this.getVideoHeight()) / 2 + 'px',
       })
 
-      helper.HTMLHelper.applyStyle(this.progressBar, {
+      helper.HTMLElementHelper.applyStyle(this.progressBar, {
         'height': this.getVideoHeight() + 'px',
         'width': percentPlayed + '%',
       })
