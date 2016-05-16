@@ -5,7 +5,7 @@ namespace videomock.event {
    */
   export class EventHandler {
     /**
-     * Holds the vpaid events callback
+     * Holds events callback
      */
     private listeners: {[index: string]: EventListener[]}  = {}
 

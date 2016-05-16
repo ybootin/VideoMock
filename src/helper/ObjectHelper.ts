@@ -91,6 +91,27 @@ namespace videomock.helper {
       })());
     }
 
+    static defineProperty(proto: any, propertyName: string, getter: Function, setter?: Function): void {
+      Object.defineProperty(proto, propertyName, (function(): IPropertyObject {
+        let prop: IPropertyObject = <IPropertyObject>{
+          'enumerable': true,
+          'configurable': true,
+          'get': function (): any {
+            return getter.call(this)
+          },
+          set: function(value: any): void { return void(value) },
+        }
+
+        if (setter) {
+          prop.set = function(value: any): void {
+            setter.call(this, value)
+          }
+        }
+
+        return prop
+      })())
+    }
+
     /**
      * Init object default properties values
      *
