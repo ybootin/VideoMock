@@ -112,12 +112,16 @@ namespace videomock.ui {
     }
 
     public updateTimeRanges(): void {
-      if (!this.video.played.length) {
-        this.video.played.addRange(0, this.video.currentTime)
+      // currently using a very basic stub for video.played time ranges
+      // but when you jump around in the video it is not correct yet
+      const played = <videomock.dom.TimeRanges> this.video.played
+
+      if (!played.length) {
+        played.addRange(0, this.video.currentTime)
       } else {
-        this.video.played.ranges[0].start = 0
-        this.video.played.ranges[0].end = this.video.currentTime
-      }
+        played.ranges[0].start = 0
+        played.ranges[0].end = this.video.currentTime
+      }))
     }
 
     private getVideoWidth(): number {
