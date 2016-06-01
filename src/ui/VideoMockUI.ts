@@ -121,7 +121,7 @@ namespace videomock.ui {
       } else {
         played.ranges[0].start = 0
         played.ranges[0].end = this.video.currentTime
-      }))
+      }
     }
 
     private getVideoWidth(): number {
