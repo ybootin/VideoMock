@@ -20,7 +20,10 @@ namespace videomock.ui {
         this.percentLoaded = video.buffered.end(video.buffered.length - 1) / video.duration
         this.updateDisplay()
       })
-      video.addEventListener(event.MediaEvent.timeupdate, () => this.updateDisplay())
+      video.addEventListener(event.MediaEvent.timeupdate, () => {
+        this.updateDisplay()
+        this.updateTimeRanges()
+      })
       video.addEventListener(event.MediaEvent.loadstart, () => this.updateDisplay())
       video.addEventListener(event.MediaEvent.progress, () => this.updateDisplay())
       video.addEventListener(event.MediaEvent.ended, () => this.onEnded())
@@ -106,6 +109,15 @@ namespace videomock.ui {
         '<br/>Status: ' + this.status
 
       this.contentContainer.innerHTML = content
+    }
+
+    public updateTimeRanges(): void {
+      if (!this.video.played.length) {
+        this.video.played.addRange(0, this.video.currentTime)
+      } else {
+        this.video.played.ranges[0].start = 0
+        this.video.played.ranges[0].end = this.video.currentTime
+      }
     }
 
     private getVideoWidth(): number {
