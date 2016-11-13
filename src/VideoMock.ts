@@ -386,6 +386,7 @@ namespace videomock {
   VideoMock.prototype._stopPlaybackTimer = function(): void {
     if (this._playbackTimerId) {
       clearInterval(this._playbackTimerId)
+      this._playbackTimerId = null
     }
   }
 
